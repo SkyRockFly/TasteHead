@@ -1,0 +1,6 @@
+{
+  "current_page": "http://127.0.0.1:49981/posts?page=3",
+  "pages_remaining": 0,
+  "next_page" :"http://127.0.0.1:49981/posts?page=4",
+  "is_processed": false
+}

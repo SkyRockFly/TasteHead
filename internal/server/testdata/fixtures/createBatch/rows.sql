@@ -1,0 +1,1 @@
+INSERT INTO batch (name,rel_path,status) VALUES ('kek','kek','finished');

@@ -1,0 +1,6 @@
+{
+  "post_selector": "article",
+  "image_attr": "data-file-url",
+  "next_page_selector": "a[id*='paginator-next']",
+  "next_page_attr": "href"
+}

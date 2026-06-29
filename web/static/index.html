@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Taste Head Labeler</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Taste Head Labeler</h1>
+        <small>Медвежий желудок крутит картинки, а ты просто кликаешь.</small>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="tab-download">Download</button>
+      <button class="tab-btn" data-tab="tab-training">Training</button>
+      <button class="tab-btn" data-tab="tab-deleted">Deleted</button>
+    </div>
+
+    <section class="tab-panel" id="tab-download">
+      <!-- Левая панель: управление -->
+      <div class="layout-root">
+        <aside class="panel">
+          <div class="panel-section">
+            <h2>1. Download Pages</h2>
+            <label>Page URL</label>
+            <input
+              id="dl-url"
+              type="text"
+              placeholder="https://your.site/posts?page=11"
+            />
+
+            <label>CSS селектор постов</label>
+            <input id="dl-post-selector" type="text" value="article" />
+
+            <label>Атрибут с full-image URL</label>
+            <input id="dl-image-attr" type="text" value="data-file-url" />
+
+            <label>CSS селектор ссылки 'next page'</label>
+            <input
+              id="dl-next-selector"
+              type="text"
+              value="a[id*='paginator-next']"
+            />
+
+            <label>Атрибут для next href</label>
+            <input id="dl-next-attr" type="text" value="href" />
+
+            <div class="row">
+              <div>
+                <label>Страниц подряд</label>
+                <input id="dl-pages" type="number" min="1" max="50" value="1" />
+              </div>
+              <div>
+                <label>Images limit</label>
+                <input
+                  id="dl-limit"
+                  type="number"
+                  min="1"
+                  max="200"
+                  value="100"
+                />
+              </div>
+            </div>
+
+            <button id="dl-btn" class="primary" style="margin-top: 8px">
+              Download and parse
+            </button>
+            <div id="dl-status" class="status"></div>
+          </div>
+
+          <div class="panel-section">
+            <h2>2. Batch navigation</h2>
+            <div class="toolbar-row">
+              <label for="batch-select">Batch:</label>
+              <select class="batch-select" , data-action="batch-select">
+                <option value="__all__">All batches</option>
+              </select>
+              <button
+                id="refresh-batches-btn"
+                type="button"
+                title="Refresh batch list"
+              >
+                ⟲
+              </button>
+              <button data-action="update-batch-name-btn" type="button">
+                Update Batch Name
+              </button>
+              <button data-action="create-batch-btn" type="button">
+                Create Batch
+              </button>
+              <button data-action="remove-batch-btn" type="button">
+                Remove Batch
+              </button>
+
+              <label for="batch-select">Unfinished Batches</label>
+              <select data-id="unfinished-batch-select"></select>
+              <button data-action="find-unfinished-batches" type="button">
+                Find Unfinished Batches
+              </button>
+              <button data-action="resume-scrape-btn" type="button">
+                Resume Scrape
+              </button>
+              <label for="batch-select">Batches With Fails</label>
+              <select data-id="batches-with-fails"></select>
+              <button data-action="find-batches-fails" type="button">
+                Find Fails In Selected Batch
+              </button>
+              <button data-action="solve-batch-fails" type="button">
+                Solve batch fails
+              </button>
+            </div>
+            <label for="score-source">Score source:</label>
+
+            <select id="score-source">
+              <option value="model">Model</option>
+              <option value="user">User</option>
+            </select>
+
+            <label for="score-filter">Filter:</label>
+            <select id="score-filter">
+              <option value="">All</option>
+              <option value="0">0.00</option>
+              <option value="0.25">0.25</option>
+              <option value="0.5">0.50</option>
+              <option value="0.75">0.75</option>
+              <option value="1">1.00</option>
+            </select>
+            <div class="row" style="margin-top: 4px">
+              <div>
+                <label>Page limit</label>
+                <input
+                  id="page-limit"
+                  type="number"
+                  min="1"
+                  max="120"
+                  value="100"
+                />
+              </div>
+            </div>
+
+            <div class="row" style="margin-top: 6px">
+              <button id="load-btn" class="primary">Load Page</button>
+              <button id="prev-btn">← Prev</button>
+              <button id="next-btn">Next →</button>
+            </div>
+
+            <div id="page-status" class="status"></div>
+          </div>
+
+          <div class="panel-section">
+            <h2>3. Save Scores</h2>
+            <button id="save-all-btn" class="primary">Save all changes</button>
+            <button id="reset-local-btn" class="danger">
+              Reset all changes
+            </button>
+            <div class="hint">
+              Оценки идут в <code>/scores/update</code> пачкой по hash.
+            </div>
+            <div id="save-status" class="status"></div>
+            <span>Mass Scoring</span>
+            <select id="mass-score-select">
+              <option value="0">0</option>
+              <option value="0.25">0.25</option>
+              <option value="0.5">0.5</option>
+              <option value="0.75">0.75</option>
+              <option value="1">1</option>
+            </select>
+            <button data-action="mass-scoring-btn">Apply</button>
+          </div>
+
+          <div class="panel-section">
+            <h2>4. Утилиты</h2>
+            <button id="load-local-batches" class="primary">
+              Добавить существующие папки в корне
+            </button>
+            <span>Models:</span>
+            <select data-action="list-models"></select>
+            <button
+              data-action="refresh-model-list-btn"
+              type="button"
+              title="Refresh batch list"
+            >
+              ⟲
+            </button>
+          </div>
+        </aside>
+
+        <!-- Правая часть: грид -->
+        <section class="grid-wrapper">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <button id="select-all-btn">Select All</button>
+              <button id="clear-selection-btn">Reset all</button>
+              <span id="selected-counter">Selected: 0</span>
+              <button data-action="remove-images-btn">Remove Images</button>
+              <div id="move-batch">
+                <button data-action="move-images-to-batch-btn">
+                  Move Selected To Batch
+                </button>
+                <select
+                  class="batch-select"
+                  ,
+                  data-action="move-to-batch"
+                ></select>
+              </div>
+            </div>
+            <div class="toolbar-right">
+              <span id="toolbar-right">No data</span>
+              <span class="spacer"></span>
+              <span id="pending-counter">Scores changed: 0</span>
+            </div>
+            <div class="toolbar-center">
+              <label for="tag-select">Тэг:</label>
+              <select
+                class="tag-select"
+                data-allow-new="true"
+                data-action="list-tags"
+              ></select>
+              <button data-action="delete-tag-btn" class="primary">
+                Delete Tag
+              </button>
+              <button data-action="send-training-btn" class="primary">
+                Send to dataset
+              </button>
+            </div>
+          </div>
+
+          <div id="grid-download" class="grid">
+            <!-- сюда падают карточки картинок -->
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="tab-training" class="tab-panel">
+      <div class="layout-root">
+        <aside class="panel">
+          <div class="panel-section">
+            <h2>1. Навигация по папке</h2>
+            <label for="score-source">Источник оценки:</label>
+
+            <select id="score-source">
+              <option value="model">Модель</option>
+              <option value="user">Пользователь</option>
+            </select>
+
+            <label for="score-filter">Фильтр:</label>
+            <select id="score-filter">
+              <option value="">Все</option>
+              <option value="0">0.00</option>
+              <option value="0.25">0.25</option>
+              <option value="0.5">0.50</option>
+              <option value="0.75">0.75</option>
+              <option value="1">1.00</option>
+            </select>
+            <div class="row" style="margin-top: 4px">
+              <div>
+                <label>Лимит на страницу</label>
+                <input
+                  id="page-limit"
+                  type="number"
+                  min="1"
+                  max="120"
+                  value="24"
+                />
+              </div>
+              <div>
+                <label>Текущий курсор</label>
+                <input id="cursor-input" type="number" min="0" value="0" />
+              </div>
+            </div>
+
+            <div class="row" style="margin-top: 6px">
+              <button id="load-btn" class="primary">Загрузить страницу</button>
+              <button id="prev-btn">← Назад</button>
+              <button id="next-btn">Вперёд →</button>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <h2>2. Сохранить оценки</h2>
+            <button id="save-all-btn" class="primary">
+              Сохранить все изменённые
+            </button>
+            <button id="reset-local-btn" class="danger">
+              Сбросить локальные изменения
+            </button>
+            <div class="hint">
+              Оценки идут в <code>/scores/update</code> пачкой по hash.
+            </div>
+
+            <div id="save-status" class="status"></div>
+          </div>
+
+          <div class="panel-section">
+            <h2>3. Train model</h2>
+            <button data-action="train-model" class="primary">
+              Train model
+            </button>
+            <input placeholder="model name" data-action="model-name-input" />
+            <label for="tag-select">Тег:</label>
+            <select
+              class="tag-select"
+              data-allow-new="false"
+              data-action="train-model-tags"
+            ></select>
+            <div id="save-status" class="status"></div>
+          </div>
+        </aside>
+
+        <section class="grid-wrapper">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <button id="select-all-btn">Select All</button>
+              <button id="clear-selection-btn">Reset all</button>
+              <span id="selected-counter">Selected: 0</span>
+              <button data-action="remove-images-btn">Remove Images</button>
+
+              <label for="tag-select">Tag:</label>
+              <select
+                class="tag-select"
+                data-allow-new="true"
+                data-action="list-tags"
+              ></select>
+              <button id="delete-tag-btn" class="primary">Delete Tag</button>
+              <button id="send-training-btn" class="primary">
+                Send to Dataset
+              </button>
+              <button data-action="update-images-tag" class="primary">
+                Update selected images tag
+              </button>
+            </div>
+            <div class="toolbar-right">
+              <span id="toolbar-right">No data</span>
+              <span class="spacer"></span>
+              <span id="pending-counter">Scores changed: 0</span>
+            </div>
+            <div class="toolbar-center">
+              <span id="toolbar-right">Нет данных</span>
+              <span class="spacer"></span>
+              <span id="pending-counter">Изменений в оценке: 0</span>
+            </div>
+            <span data-class="score-composition"></span>
+            <button id="score-composition-btn" class="primary">
+              Score Composition
+            </button>
+          </div>
+
+          <div id="grid-training" class="grid">
+            <!-- сюда падают карточки картинок -->
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="tab-deleted" class="tab-panel">
+      <div class="layout-root">
+        <aside class="panel">
+          <div class="panel-section">
+            <h2>1. Навигация по папке</h2>
+            <label for="score-source">Источник оценки:</label>
+
+            <select id="score-source">
+              <option value="model">Модель</option>
+              <option value="user">Пользователь</option>
+            </select>
+            <div class="row" style="margin-top: 4px">
+              <div>
+                <label>Лимит на страницу</label>
+                <input
+                  id="page-limit"
+                  type="number"
+                  min="1"
+                  max="120"
+                  value="100"
+                />
+              </div>
+            </div>
+
+            <div class="row" style="margin-top: 6px">
+              <button id="load-btn" class="primary">Загрузить страницу</button>
+              <button id="prev-btn">← Назад</button>
+              <button id="next-btn">Вперёд →</button>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <label>Change load mode</label>
+            <button data-action="switch-load-mode-btn">Images</button>
+            <button data-action="hard-delete-btn">Delete</button>
+            <button data-action="restore-btn">Restore</button>
+          </div>
+        </aside>
+
+        <section class="grid-wrapper">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <button id="select-all-btn">Select All</button>
+              <button id="clear-selection-btn">Reset all</button>
+              <span id="selected-counter">Selected: 0</span>
+            </div>
+          </div>
+
+          <div id="grid-deleted" class="grid">
+            <!-- сюда падают карточки картинок -->
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Модалка для full-size -->
+    <div id="modal-backdrop" class="modal-backdrop">
+      <div class="modal" , id="modal">
+        <div class="modal-header">
+          <div>
+            <span id="modal-title">#</span>
+          </div>
+          <div class="modal-nav">
+            <button id="modal-prev-btn" class="ghost">&larr;</button>
+            <button id="modal-next-btn" class="ghost">&rarr;</button>
+            <button id="modal-close-btn">Close</button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="modal-img-wrap">
+            <img id="modal-image" alt="full" />
+          </div>
+          <div class="modal-meta">
+            <div>
+              <div>hash: <code id="modal-hash"></code></div>
+              <div style="margin-top: 4px">
+                dir: <code id="modal-dir"></code>
+              </div>
+              <div>path: <code id="modal-path"></code></div>
+            </div>
+            <div id="modal-info"></div>
+            <div id="modal-actions"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>

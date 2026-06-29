@@ -1,0 +1,26 @@
+# data
+data/
+clip/
+
+# configs with local secrets/state
+config/local.yaml
+config/model.yaml
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# go
+*.exe
+*.test
+coverage.out
+
+# env
+.env
+
+# logs
+*.log
+
+# vscode
+.vscode/

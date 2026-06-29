@@ -1,0 +1,13 @@
+env_paths:
+  python_venv_dir: .venv
+  scripts_dir: py/src
+  download_dir: data/download
+  import_dir: data/import
+  training_dir: data/training
+  model_dir: data/models
+db_config:
+  url: postgres://postgres:bear@127.0.0.1:5432/tasteheaddb
+logger:
+  timestamp: "2006-01-02 15:04:05"
+  formatlevel: "%-6s"
+  level: debug

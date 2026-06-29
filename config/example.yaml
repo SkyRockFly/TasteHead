@@ -1,0 +1,13 @@
+env_paths:
+  python_venv_dir: /app/.venv
+  scripts_dir: /app/py/src
+  download_dir: /appdata/download
+  import_dir: /appdata/import
+  training_dir: /appdata/training
+  model_dir: /appdata/models
+db_config:
+  url: postgres://postgres:postgres@postgres:5432/tastehead?sslmode=disable
+logger:
+  timestamp: "2006-01-02 15:04:05"
+  formatlevel: "%-6s"
+  level: debug
