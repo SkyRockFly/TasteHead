@@ -11,3 +11,5 @@ logger:
   timestamp: "2006-01-02 15:04:05"
   formatlevel: "%-6s"
   level: debug
+server:
+  port: 8080

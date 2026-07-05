@@ -3,7 +3,7 @@ data/
 clip/
 
 # configs with local secrets/state
-config/local.yaml
+config/config.yaml
 config/model.yaml
 
 # python
