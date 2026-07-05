@@ -13,9 +13,14 @@ import (
 )
 
 type AppConfig struct {
-	Log LoggerConfig `yaml:"logger" validate:"required"`
-	Env EnvConfig    `yaml:"env_paths" validate:"required"`
-	DB  DBConfig     `yaml:"db_config" validate:"required"`
+	Log    LoggerConfig `yaml:"logger" validate:"required"`
+	Env    EnvConfig    `yaml:"env_paths" validate:"required"`
+	DB     DBConfig     `yaml:"db_config" validate:"required"`
+	Server ServerConfig `yaml:"server" validate:"required"`
+}
+
+type ServerConfig struct {
+	Port int `yaml:"port" validate:"min=1,max=65535"`
 }
 
 type EnvConfig struct {

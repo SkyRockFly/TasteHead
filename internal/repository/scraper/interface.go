@@ -5,7 +5,6 @@ import (
 	"scraper/internal/pkg/apperror"
 )
 
-// Parse
 type ParseReq struct {
 	URL              string
 	PostSelector     string
@@ -19,7 +18,6 @@ type ParseResp struct {
 	NextURL string
 }
 
-// Process
 type ProcessFilesReq struct {
 	ModelPath    string
 	DownloadPath string

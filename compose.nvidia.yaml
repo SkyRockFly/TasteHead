@@ -1,0 +1,17 @@
+services:
+    tastehead:
+      build:
+        args:
+          TORCH_INDEX_URL: https://download.pytorch.org/whl/cu130
+      deploy:
+        resources:
+          reservations:
+            devices:
+              - driver: nvidia
+                count: all
+                capabilities: [gpu]
+      environment:
+        NVIDIA_VISIBLE_DEVICES: all
+        NVIDIA_DRIVER_CAPABILITIES: compute,utility
+        TASTEHEAD_DEVICE: "cuda"
+

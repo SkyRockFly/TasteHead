@@ -22,7 +22,7 @@ VALUES ($1,$2) ON CONFLICT (image_id,tag_id) DO NOTHING
 RETURNING id`
 	sqlRemoveRow = `UPDATE training
 SET deleted_at = NOW() at time zone 'utc'
-WHERE id = $1 AND deleted_at IS NULL`
+WHERE id = ANY($1::bigint[]) AND deleted_at IS NULL`
 	sqlUpdateRowTag = `UPDATE training tr
 SET tag_id = $1
 WHERE tr.id = ANY($2::bigint[]) AND tr.deleted_at IS NULL
@@ -142,7 +142,7 @@ func (r *Repository) ListTagsByImageIDs(ctx context.Context, ids []int64) (train
 	return tags, nil
 }
 
-func (r *Repository) RemoveRow(ctx context.Context, id int64) error {
+func (r *Repository) RemoveRows(ctx context.Context, id []int64) error {
 	tag, err := r.postgresDB.Exec(ctx, sqlRemoveRow, id)
 	if err != nil {
 		return fmt.Errorf("query: %w", err)

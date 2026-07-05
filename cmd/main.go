@@ -78,7 +78,7 @@ func main() {
 	}
 
 	opts := server.ServerOpts{
-		Port:      5860,
+		Port:      appConfig.Server.Port,
 		ScrapeSVC: downloadSVC,
 		TrainSVC:  trainingService,
 		ImageSVC:  imgRowService,

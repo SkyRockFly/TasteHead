@@ -79,7 +79,7 @@ type CreateTrainingRowsResp struct {
 }
 
 type RemoveRowReq struct {
-	ID int64 `validate:"required,min=1"`
+	ID []int64 `validate:"min=1,dive,min=1"`
 }
 
 type ListRowsByReq struct {
@@ -162,7 +162,7 @@ func (s *Service) RemoveRow(ctx context.Context, req RemoveRowReq) error {
 		return fmt.Errorf("validate struct: %w: %v", apperror.ErrBadRequest, err)
 	}
 
-	if err := s.trainingRepo.RemoveRow(ctx, req.ID); err != nil {
+	if err := s.trainingRepo.RemoveRows(ctx, req.ID); err != nil {
 		return fmt.Errorf("remove row: %w", err)
 	}
 

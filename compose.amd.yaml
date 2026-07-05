@@ -1,0 +1,13 @@
+services:
+    tastehead:
+      build:
+        args:
+          TORCH_INDEX_URL: https://download.pytorch.org/whl/rocm6.4
+      devices:
+      - /dev/kfd
+      - /dev/dri
+      group_add:
+        - video
+        - render
+      environment:
+        TASTEHEAD_DEVICE: cuda

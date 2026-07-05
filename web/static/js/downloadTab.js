@@ -162,6 +162,17 @@ export class DownloadTab extends BaseTab {
       },
     );
 
+    this.find('[data-action="set-model-btn"]').addEventListener("click", () => {
+      this.setModel();
+    });
+
+    this.find('[data-action="remove-training-rows-btn"]').addEventListener(
+      "click",
+      () => {
+        this.setModel();
+      },
+    );
+
     this.loadBatches();
     this.listTags();
     this.listModels();

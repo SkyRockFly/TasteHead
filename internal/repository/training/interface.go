@@ -87,7 +87,7 @@ type ImageIDstoTags map[int64][]string
 
 type Repository interface {
 	CreateRows(ctx context.Context, rows CreateRowReq) (CreateRowResp, error)
-	RemoveRow(ctx context.Context, id int64) error
+	RemoveRows(ctx context.Context, id []int64) error
 	ListRowsByReq(ctx context.Context, req ListRowsByReq) (ListRowsByResp, error)
 	UpdateRowTag(ctx context.Context, req UpdateRowTagReq) error
 	ListRowsByTag(ctx context.Context, tag int) ([]ListByTagRow, error)

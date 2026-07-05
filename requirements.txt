@@ -1,0 +1,6 @@
+numpy
+pillow
+PyYAML
+open_clip_torch
+faiss-cpu
+tqdm

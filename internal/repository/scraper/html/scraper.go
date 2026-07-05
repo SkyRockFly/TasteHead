@@ -1,6 +1,7 @@
 package htmlparser
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/base64"
@@ -14,12 +15,14 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"scraper/internal/pkg/apperror"
 	"scraper/internal/repository/scraper"
 	scrapestate "scraper/internal/scrapeState"
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -216,7 +219,10 @@ func (r *Repository) MoveDir(src, dest string) error {
 }
 
 func (r *Repository) TrainModel(ctx context.Context, req scraper.TrainModelReq) error {
-	venv := filepath.Join(r.paths.PythonVenvDir, "Scripts", "python.exe")
+	venv, err := makeVenvPath(r.paths.PythonVenvDir)
+	if err != nil {
+		return fmt.Errorf("venv path: %w", err)
+	}
 	scriptName := filepath.Join(r.paths.ScriptsDir, "ingest_clip.py")
 
 	cmdArgs := []string{
@@ -248,7 +254,10 @@ func (r *Repository) TrainModel(ctx context.Context, req scraper.TrainModelReq) 
 }
 
 func (r *Repository) ProcessFiles(ctx context.Context, req scraper.ProcessFilesReq) error {
-	venv := filepath.Join(r.paths.PythonVenvDir, "Scripts", "python.exe")
+	venv, err := makeVenvPath(r.paths.PythonVenvDir)
+	if err != nil {
+		return fmt.Errorf("venv path: %w", err)
+	}
 	scriptName := filepath.Join(r.paths.ScriptsDir, "fileManager.py")
 
 	cmdArgs := []string{
@@ -632,8 +641,20 @@ func (r *Repository) DeleteImages(file string) error {
 	return nil
 }
 
+func makeVenvPath(venvDir string) (string, error) {
+	if venvDir == "" {
+		return "", fmt.Errorf("no venv")
+	}
+
+	if runtime.GOOS == "windows" {
+		return filepath.Join(venvDir, "Scripts", "python.exe"), nil
+	}
+
+	return filepath.Join(venvDir, "bin", "python"), nil
+}
+
 func handleDownloadError(URL, funcName string, err error, issue apperror.DownloadIssue, repeat bool) scraper.FailedDownload {
-	log.Error().Err(fmt.Errorf("%s: %w", funcName, err)).Msg("download")
+	log.Info().Err(fmt.Errorf("%s: %w", funcName, err)).Msg("download image")
 	fail := scraper.FailedDownload{
 		Warn:       issue,
 		URL:        URL,
@@ -677,28 +698,53 @@ func executeCommand(ctx context.Context, exePath string, args ...string) error {
 		exePath,
 		args...,
 	)
-	var stderr, stdout bytes.Buffer
-	cmd.Stderr = &stderr
-	cmd.Stdout = &stdout
 
 	cmd.Env = append(os.Environ(),
 		"HF_HUB_OFFLINE=1",
 		"HF_HUB_VERBOSITY=error",
-		"PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True",
+		"PYTORCH_ALLOC_CONF=expandable_segments:True",
+		"PYTHONUNBUFFERED=1",
 	)
-	if err := cmd.Run(); err != nil {
-		stderrStr := strings.TrimSpace(stderr.String())
-		stdoutStr := strings.TrimSpace(stdout.String())
-		if stderrStr != "" {
-			fmt.Printf("PYTHON STDERR:%s", stderrStr)
-		}
-		if stdoutStr != "" {
-			fmt.Printf("PYTHON STDOUT:%s", stdoutStr)
-		}
 
-		return fmt.Errorf("cmd: %w, stdout:%s , stderr: %s", err, stdoutStr, stderrStr)
+	stdoutPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		return fmt.Errorf("stdout pipe: %w", err)
 	}
-	fmt.Printf("PYTHON STDOUT:%s", stdout.String())
+
+	stderrPipe, err := cmd.StderrPipe()
+	if err != nil {
+		return fmt.Errorf("stderr pipe: %w", err)
+	}
+
+	var stdoutBuf bytes.Buffer
+	var stderrBuf bytes.Buffer
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("cmd start: %w", err)
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		streamPipe("PYTHON STDOUT", stdoutPipe, &stdoutBuf)
+	}()
+
+	go func() {
+		defer wg.Done()
+		streamPipe("PYTHON STDERR", stderrPipe, &stderrBuf)
+	}()
+
+	waitErr := cmd.Wait()
+	wg.Wait()
+
+	if waitErr != nil {
+		stdoutStr := strings.TrimSpace(stdoutBuf.String())
+		stderrStr := strings.TrimSpace(stderrBuf.String())
+
+		return fmt.Errorf("cmd: %w, stdout: %s, stderr: %s", waitErr, stdoutStr, stderrStr)
+	}
 	return nil
 }
 
@@ -717,6 +763,26 @@ func getFilename(fURL string) (string, error) {
 		return "", fmt.Errorf("%w : %s", apperror.ErrBadFilename, filepath.Ext(filename))
 	}
 	return filename, nil
+}
+
+func streamPipe(prefix string, r io.Reader, dst *bytes.Buffer) {
+	scanner := bufio.NewScanner(r)
+
+	// 64K
+	scanner.Buffer(make([]byte, 1024), 1024*1024*10)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		dst.WriteString(line)
+		dst.WriteByte('\n')
+
+		fmt.Printf("%s: %s\n", prefix, line)
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("%s read error: %v\n", prefix, err)
+	}
 }
 
 func sendGetRequest(picURL string, client *http.Client) (*http.Response, error) {

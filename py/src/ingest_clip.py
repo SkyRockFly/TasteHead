@@ -12,6 +12,7 @@ import argparse
 from dataclasses import dataclass
 from typing import Optional
 import faulthandler
+import os
 faulthandler.enable()
 
 @dataclass
@@ -25,16 +26,17 @@ class ImageRow:
 class ImageTable:
     ids: list[int]
     paths: list[Path]
-    scores: list[Optional[float]]  # None = нет оценки
+    scores: list[Optional[float]]  # None = no score
 
 MODEL_NAME = "ViT-H-14"
-PRETRAINED = "laion2b_s32b_b79k"
-LOCAL_BIN_PATH = "E:\\AI\\Models\\open_clip_pytorch_model.bin"
-
+raw_pretrained = os.getenv("OPENCLIP_PRETRAINED", "laion2b_s32b_b79k")
+if raw_pretrained == "" or raw_pretrained.lower() in ("none", "null", "random"):
+    PRETRAINED = None
+else:
+    PRETRAINED = raw_pretrained
 VectorInfo = List[List[float]]
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 128
+
 
 @dataclass
 class TrainingTable:
@@ -47,7 +49,24 @@ class BaseTable:
     ids: list[int]
     paths: list[Path]
 
+def resolve_device() -> str:
+    mode = os.getenv("TASTEHEAD_DEVICE", "auto").lower()
 
+    if mode == "cpu":
+        return "cpu"
+
+    if mode == "cuda":
+        if not torch.cuda.is_available():
+            raise RuntimeError("TASTEHEAD_DEVICE=cuda, but CUDA is not available")
+        return "cuda"
+
+    if mode == "auto":
+        return "cuda" if torch.cuda.is_available() else "cpu"
+
+    raise RuntimeError(f"unknown TASTEHEAD_DEVICE: {mode}")
+
+DEVICE = resolve_device()
+BATCH_SIZE = int(os.getenv("TASTEHEAD_CLIP_BATCH_SIZE", "4" if DEVICE == "cpu" else "16"))
 
 def read_image_table(img_path: Path) -> list[ImageRow]:
     rows: list[ImageRow] = []
@@ -143,7 +162,7 @@ def make_embeddings(
         return None, None
     print(f"Found {n} images")
 
-    with torch.no_grad():
+    with torch.inference_mode():
         for start in range(0,n,BATCH_SIZE):
             end = min(start + BATCH_SIZE,n)
 
@@ -155,32 +174,37 @@ def make_embeddings(
 
             for path, img_id in zip(batch_paths, batch_ids):
                 img_path = Path(path)
+                
                 try:
                     img = Image.open(img_path).convert("RGB")
                 except Exception as e:
                     print(f"[ERR] Can't open {img_path}: {e}")
                     continue
 
-                tensor = preprocess(img)
+                try:
+                    tensor = preprocess(img)
+                except Exception as e:
+                    print(f"[ERR] preprocess failed: {type(e).__name__}: {e}", flush=True)
+                    raise
                 batch_tensors.append(tensor)
                 batch_kept_ids.append(img_id)
+                
 
             if not batch_tensors:
                 print(f"[{start}:{end}] no valid images in this batch, skip")
                 continue
             
-            batch_tensor = torch.stack(batch_tensors).to(DEVICE)
-
+            batch_tensor = torch.stack(batch_tensors)
+            batch_tensor = batch_tensor.to(DEVICE)
             if DEVICE == "cuda":
                 with torch.autocast("cuda"):
-                    print("Working from GPU")
                     emb = model.encode_image(batch_tensor)
-            else:
-                print("Working from CPU")
+            elif DEVICE == "cpu":
                 emb = model.encode_image(batch_tensor)
+            else:
+                raise RuntimeError(f"NO DEVICE:{DEVICE}")
 
             emb = emb / emb.norm(dim=-1,keepdim=True)
-
             emb_np = emb.cpu().numpy().astype("float32")
             print(f"Batch {start}:{end} -> tensor {batch_tensor.shape}, emb {emb_np.shape}")
             
@@ -209,6 +233,7 @@ def main():
         print("Current path is not a file:")
         return
     
+    print("DEVICE:",DEVICE)
     print("Load Model:",MODEL_NAME,PRETRAINED)
 
     imageList = read_image_table(csvImagePath)
@@ -217,12 +242,12 @@ def main():
         trainTable = getTrainInfo(imageList,dataPath)
     else:
         evalTable = getEvalInfo(imageList,csvImagePath)
-    
+   
     try:
         model, _, preprocess = open_clip.create_model_and_transforms(
         MODEL_NAME,
-        pretrained=LOCAL_BIN_PATH,
-        device="cuda"
+        pretrained=PRETRAINED,
+        device=DEVICE
     )
     except Exception as e:
         print(f"Load model: {e}")
@@ -250,8 +275,6 @@ def main():
             if row.score is None:
                 raise RuntimeError(f"missing score for image id {row.id}")
             idToScore[row.id] = row.score
-            print(idToScore)
-    
     
     output_dir = csvImagePath.parent / "output"
     output_dir.mkdir(exist_ok=True)

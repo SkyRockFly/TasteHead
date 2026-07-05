@@ -411,7 +411,7 @@ func (s *Service) TrainModel(ctx context.Context, req TrainModelReq) error {
 		return fmt.Errorf("ExportAsSVC: %w", err)
 	}
 
-	outputPath := filepath.Join(s.paths.ModelDir, req.ModelName)
+	outputPath := filepath.Join(s.paths.ModelDir, req.ModelName+".pt")
 	trainReq := scraper.TrainModelReq{
 		CsvPath:      csvPath,
 		DownloadPath: s.paths.DownloadDir,
