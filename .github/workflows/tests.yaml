@@ -23,7 +23,7 @@ jobs:
           --health-interval=5s
           --health-timeout=5s
           --health-retries=10
-
+      
     env:
       TEST_OPENCLIP_PRETRAINED: none
       TASTEHEAD_DEVICE: cpu
@@ -74,6 +74,9 @@ jobs:
           echo "TASTEHEAD_SCRIPTS_DIR=$TASTEHEAD_SCRIPTS_DIR"
           echo "TASTEHEAD_PYTHON_VENV_DIR=$TASTEHEAD_PYTHON_VENV_DIR"
           echo "TASTEHEAD_MIGRATIONS_DIR=$TASTEHEAD_MIGRATIONS_DIR"
+          echo "shell TASTEHEAD_EPOCHS=$TASTEHEAD_EPOCHS"
+          echo "shell TASTEHEAD_LEARNING_RATE=$TASTEHEAD_LEARNING_RATE"
+          env | sort | grep TASTEHEAD || true
           ls -la
           ls -la config
           ls -la py/src
