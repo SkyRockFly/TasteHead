@@ -46,4 +46,36 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Prepare Python venv
+        run: |
+          python -m venv "$TASTEHEAD_PYTHON_VENV_DIR"
+          "$TASTEHEAD_PYTHON_VENV_DIR/bin/python" -m pip install --upgrade pip
+          "$TASTEHEAD_PYTHON_VENV_DIR/bin/pip" install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          "$TASTEHEAD_PYTHON_VENV_DIR/bin/pip" install -r py/requirements.txt
+
+      - name: Install goose
+        run: |
+          go install github.com/pressly/goose/v3/cmd/goose@latest
+
+      - name: Run database migrations
+        run: |
+          goose -dir "$TASTEHEAD_MIGRATIONS_DIR" postgres "$DB_URL" up
+
+      - name: Debug CI layout
+        run: |
+          echo "workspace=$GITHUB_WORKSPACE"
+          echo "DB_URL=$DB_URL"
+          echo "TASTEHEAD_SCRIPTS_DIR=$TASTEHEAD_SCRIPTS_DIR"
+          echo "TASTEHEAD_PYTHON_VENV_DIR=$TASTEHEAD_PYTHON_VENV_DIR"
+          echo "TASTEHEAD_MIGRATIONS_DIR=$TASTEHEAD_MIGRATIONS_DIR"
+          ls -la
+          ls -la config
+          ls -la py/src
+          ls -la "$TASTEHEAD_MIGRATIONS_DIR"
+
       - run: go test ./internal/server
