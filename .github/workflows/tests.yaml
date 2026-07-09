@@ -3,6 +3,10 @@ name: Tests
 on:
   push:
     branches: [develop]
+    paths-ignore:
+      - "README.md"
+      - "badges/**"
+      - ".badges/**"
   pull_request:
 
 permissions:
