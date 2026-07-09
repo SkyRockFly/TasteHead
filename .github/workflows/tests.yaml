@@ -25,7 +25,7 @@ jobs:
           --health-retries=10
       
     env:
-      TEST_OPENCLIP_PRETRAINED: none
+      OPENCLIP_PRETRAINED: none
       TASTEHEAD_DEVICE: cpu
       TASTEHEAD_EPOCHS: 120
       TASTEHEAD_LEARNING_RATE: 0.001
