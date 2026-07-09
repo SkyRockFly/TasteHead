@@ -79,7 +79,7 @@ func TestImportLocalDirsHandler(t *testing.T) {
 			want: wantResp{
 				code: http.StatusOK,
 				body: mustJSON(map[string]any{
-					"fails": "null",
+					"fails": nil,
 				}),
 				expectedFilesInBatch: 2,
 				expectedFilesInDir:   2,
@@ -204,7 +204,7 @@ func TestImportLocalDirsHandler(t *testing.T) {
 			want: wantResp{
 				code: http.StatusOK,
 				body: mustJSON(map[string]any{
-					"fails": "null",
+					"fails": nil,
 				}),
 				expectedFilesInBatch: 4,
 				expectedFilesInDir:   4,
