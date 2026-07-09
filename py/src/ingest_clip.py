@@ -75,7 +75,7 @@ def env_int(name: str, default: int = 0) -> int:
 DEVICE = resolve_device()
 BATCH_SIZE = env_int("TASTEHEAD_CLIP_BATCH_SIZE")
 if BATCH_SIZE <= 0:
-    raise RuntimeError("TASTEHEAD_EPOCHS must be > 0")
+    raise RuntimeError("TASTEHEAD_CLIP_BATCH_SIZE must be > 0")
 
 def read_image_table(img_path: Path) -> list[ImageRow]:
     rows: list[ImageRow] = []

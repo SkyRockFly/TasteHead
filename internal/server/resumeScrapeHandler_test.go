@@ -149,10 +149,10 @@ func TestResumeScrapeHandler(t *testing.T) {
 
 	localSVCPath := download.EnvPaths{
 		ModelName:           `taste_head.pt`,
-		DownloadDir:         `testdata\runtimeTest`,
-		ModelDir:            `testdata\modelsForTest`,
-		ModelNameConfigPath: `testdata\config\model.yaml`,
-		ImportDir:           `testdata\import`,
+		DownloadDir:         `testdata/runtimeTest`,
+		ModelDir:            `testdata/modelsForTest`,
+		ModelNameConfigPath: `testdata/config/model.yaml`,
+		ImportDir:           `testdata/import`,
 	}
 
 	downloadReq := download.NewServiceReq{

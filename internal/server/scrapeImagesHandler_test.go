@@ -137,17 +137,17 @@ func TestScrapeImagesHandler(t *testing.T) {
 
 	localSVCPath := download.EnvPaths{
 		ModelName:           `taste_head.pt`,
-		DownloadDir:         `testdata\runtimeTest`,
-		ModelDir:            `testdata\modelsForTest`,
-		ModelNameConfigPath: `testdata\config\model.yaml`,
-		ImportDir:           `testdata\import`,
+		DownloadDir:         `testdata/runtimeTest`,
+		ModelDir:            `testdata/modelsForTest`,
+		ModelNameConfigPath: `testdata/config/model.yaml`,
+		ImportDir:           `testdata/import`,
 	}
 
 	method := http.MethodPost
 	hndURL := "/scrape"
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require.NoError(t, testutil.ClearDir(`E:\AI\Embeddings Default City\ScraperSet\internal\server\testdata\runtimeTest`))
+			require.NoError(t, testutil.ClearDir(localSVCPath.DownloadDir))
 			require.NoError(t, testutil.ClearFixtures(pool, resetALLFixtures))
 			repo := &wrappedScraperRepo{
 				Repository:       scraperRepo,

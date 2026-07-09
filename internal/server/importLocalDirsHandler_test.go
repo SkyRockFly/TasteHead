@@ -97,9 +97,11 @@ func TestImportLocalDirsHandler(t *testing.T) {
 			want: wantResp{
 				code: http.StatusOK,
 				body: mustJSON(map[string]any{
-					"fails": map[string]any{
-						"Path": slashPath("testdata", "import", "okDirNoUnique"),
-						"Warn": "No unique files in dir",
+					"fails": []any{
+						map[string]any{
+							"Path": slashPath("testdata", "import", "okDirNoUnique"),
+							"Warn": "No unique files in dir",
+						},
 					},
 				},
 				),
@@ -144,9 +146,11 @@ func TestImportLocalDirsHandler(t *testing.T) {
 			want: wantResp{
 				code: http.StatusOK,
 				body: mustJSON(map[string]any{
-					"fails": map[string]any{
-						"Path": slashPath("testdata", "import", "entryExistWithoutDir"),
-						"Warn": "Entry exists while dir is not",
+					"fails": []any{
+						map[string]any{
+							"Path": slashPath("testdata", "import", "entryExistWithoutDir"),
+							"Warn": "Entry exists while dir is not",
+						},
 					},
 				},
 				),
@@ -169,9 +173,11 @@ func TestImportLocalDirsHandler(t *testing.T) {
 			want: wantResp{
 				code: http.StatusOK,
 				body: mustJSON(map[string]any{
-					"fails": map[string]any{
-						"Path": slashPath("testdata", "import", "dirExistWithoutEntry"),
-						"Warn": "Dir exists while entry is not",
+					"fails": []any{
+						map[string]any{
+							"Path": slashPath("testdata", "import", "dirExistWithoutEntry"),
+							"Warn": "Dir exists while entry is not",
+						},
 					},
 				},
 				),
@@ -216,9 +222,11 @@ func TestImportLocalDirsHandler(t *testing.T) {
 			want: wantResp{
 				code: http.StatusOK,
 				body: mustJSON(map[string]any{
-					"fails": map[string]any{
-						"Path": slashPath("testdata", "import", "copyError"),
-						"Warn": "Copy file error",
+					"fails": []any{
+						map[string]any{
+							"Path": slashPath("testdata", "import", "copyError"),
+							"Warn": "Copy file error",
+						},
 					},
 				},
 				),
@@ -239,9 +247,11 @@ func TestImportLocalDirsHandler(t *testing.T) {
 			want: wantResp{
 				code: http.StatusOK,
 				body: mustJSON(map[string]any{
-					"fails": map[string]any{
-						"Path": slashPath("testdata", "import", "copyError"),
-						"Warn": "Process files error",
+					"fails": []any{
+						map[string]any{
+							"Path": slashPath("testdata", "import", "copyError"),
+							"Warn": "Process files error",
+						},
 					},
 				},
 				),

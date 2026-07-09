@@ -29,10 +29,12 @@ jobs:
       TASTEHEAD_DEVICE: cpu
       TASTEHEAD_EPOCHS: 120
       TASTEHEAD_LEARNING_RATE: 0.001
+      TASTEHEAD_CLIP_BATCH_SIZE: 16
       DB_URL: postgres://postgres:postgres@localhost:5432/tastehead_test?sslmode=disable
       TASTEHEAD_SCRIPTS_DIR: ${{ github.workspace }}/py/src
       TASTEHEAD_PYTHON_VENV_DIR: ${{ github.workspace }}/.venv
       TASTEHEAD_MIGRATIONS_DIR: ${{ github.workspace }}/migrations
+
 
     steps:
       - uses: actions/checkout@v4
