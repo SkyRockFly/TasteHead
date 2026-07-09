@@ -32,6 +32,7 @@ jobs:
       DB_URL: postgres://postgres:postgres@localhost:5432/tastehead_test?sslmode=disable
       TASTEHEAD_SCRIPTS_DIR: ${{ github.workspace }}/py/src
       TASTEHEAD_PYTHON_VENV_DIR: ${{ github.workspace }}/.venv
+      TASTEHEAD_MIGRATIONS_DIR: ${{ github.workspace }}/migrations
 
     steps:
       - uses: actions/checkout@v4
