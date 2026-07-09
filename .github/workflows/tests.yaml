@@ -56,7 +56,7 @@ jobs:
           python -m venv "$TASTEHEAD_PYTHON_VENV_DIR"
           "$TASTEHEAD_PYTHON_VENV_DIR/bin/python" -m pip install --upgrade pip
           "$TASTEHEAD_PYTHON_VENV_DIR/bin/pip" install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-          "$TASTEHEAD_PYTHON_VENV_DIR/bin/pip" install -r py/requirements.txt
+          "$TASTEHEAD_PYTHON_VENV_DIR/bin/pip" install -r ./requirements.txt
 
       - name: Install goose
         run: |
