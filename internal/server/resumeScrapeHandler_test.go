@@ -41,7 +41,7 @@ func TestResumeScrapeHandler(t *testing.T) {
 				body: `{"batch_name":"withOneImage"}`,
 				prepareDir: func(t *testing.T) {
 					t.Helper()
-					fixture := `testdata\fixtures\resumeScrape\withOneImage`
+					fixture := `testdata/fixtures/resumeScrape/withOneImage`
 					dest := filepath.Join(svcPaths.DownloadDir, "withOneImage")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 

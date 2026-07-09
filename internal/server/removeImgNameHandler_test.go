@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	fixtureRemoveImg = `testdata\fixtures\removeImg\rows.sql`
+	fixtureRemoveImg = `testdata/fixtures/removeImg/rows.sql`
 )
 
 func TestRemoveImgsHandler(t *testing.T) {

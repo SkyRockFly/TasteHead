@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const removeTrainingRowFixture = `testdata\fixtures\removeTrainingRows\rows.sql`
+const removeTrainingRowFixture = `testdata/fixtures/removeTrainingRows/rows.sql`
 
 func TestRemoveTrainingRowHandler(t *testing.T) {
 	type wantReq struct {

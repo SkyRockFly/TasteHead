@@ -100,7 +100,7 @@ func TestSetModelHandler(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			require.NoError(t, testutil.ClearDir(svcPaths.ModelDir))
-			require.NoError(t, copyFilesFromFixture(`testdata\fixtures\setModel`,
+			require.NoError(t, copyFilesFromFixture(`testdata/fixtures/setModel`,
 				svcPaths.ModelDir))
 
 			req := httptest.NewRequest(method, hndURL, strings.NewReader(tt.req.body))

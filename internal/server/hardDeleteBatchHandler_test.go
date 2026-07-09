@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureHardDeleteBatches = `testdata\fixtures\hardDeleteBatches\rows.sql`
+const fixtureHardDeleteBatches = `testdata/fixtures/hardDeleteBatches/rows.sql`
 
 func TestHardDeleteBatchHandler(t *testing.T) {
 	type wantReq struct {

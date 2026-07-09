@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureListDeletedImages = `testdata\fixtures\listDeletedImages\rows.sql`
+const fixtureListDeletedImages = `testdata/fixtures/listDeletedImages/rows.sql`
 
 func TestListDeletedImagesHandler(t *testing.T) {
 	type wantReq struct {

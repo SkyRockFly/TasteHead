@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	listTrainingRowsFixture = `testdata\fixtures\listTrainingRows\rows.sql`
+	listTrainingRowsFixture = `testdata/fixtures/listTrainingRows/rows.sql`
 )
 
 func Test_listTrainingRowsByReqHandler(t *testing.T) {

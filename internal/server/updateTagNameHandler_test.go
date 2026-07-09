@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	fixtureUpdateTagName = `testdata\fixtures\updateTagName\rows.sql`
+	fixtureUpdateTagName = `testdata/fixtures/updateTagName/rows.sql`
 )
 
 func TestUpdateTagNameHandler(t *testing.T) {

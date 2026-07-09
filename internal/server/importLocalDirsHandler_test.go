@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	fixtureImportLocalDirs = `testdata\fixtures\importLocalDirs\rows.sql`
+	fixtureImportLocalDirs = `testdata/fixtures/importLocalDirs/rows.sql`
 )
 
 var ValidExts = []string{".jpg", ".png", ".jpeg", ".webp"}
@@ -71,7 +71,7 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#01_OK",
 			req: wantReq{
-				path:        `testdata\fixtures\importLocalDirs\okDir`,
+				path:        `testdata/fixtures/importLocalDirs/okDir`,
 				failCopyAt:  0,
 				failProcess: false,
 			},
@@ -87,7 +87,7 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#02_OK_NO_UNIQUE",
 			req: wantReq{
-				path:        `testdata\fixtures\importLocalDirs\okDirNoUnique`,
+				path:        `testdata/fixtures/importLocalDirs/okDirNoUnique`,
 				failCopyAt:  0,
 				failProcess: false,
 			},
@@ -130,7 +130,7 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#05_ENTRY_EXIST_WITHOUT_DIR",
 			req: wantReq{
-				path:        `testdata\fixtures\importLocalDirs\entryExistWithoutDir`,
+				path:        `testdata/fixtures/importLocalDirs/entryExistWithoutDir`,
 				failCopyAt:  0,
 				failProcess: false,
 			},
@@ -144,7 +144,7 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#06_DIR_EXIST_WITHOUT_ENTRY",
 			req: wantReq{
-				path:       `testdata\fixtures\importLocalDirs\dirExistWithoutEntry`,
+				path:       `testdata/fixtures/importLocalDirs/dirExistWithoutEntry`,
 				failCopyAt: 0,
 				prepareDir: func(t *testing.T) {
 					t.Helper()
@@ -169,12 +169,12 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#07_UPDATE_DIR",
 			req: wantReq{
-				path:       `testdata\fixtures\importLocalDirs\update\updateDir`,
+				path:       `testdata/fixtures/importLocalDirs/update/updateDir`,
 				failCopyAt: 0,
 				prepareDir: func(t *testing.T) {
 					t.Helper()
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-						`testdata\fixtures\importLocalDirs\update\currentDir`,
+						`testdata/fixtures/importLocalDirs/update/currentDir`,
 						filepath.Join(svcPaths.DownloadDir, "updateDir"),
 					))
 				},
@@ -192,7 +192,7 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#08_COPY_ERROR",
 			req: wantReq{
-				path:        `testdata\fixtures\importLocalDirs\copyError`,
+				path:        `testdata/fixtures/importLocalDirs/copyError`,
 				failCopyAt:  2,
 				failProcess: false,
 			},
@@ -210,7 +210,7 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#09_PROCESS_ERROR",
 			req: wantReq{
-				path:        `testdata\fixtures\importLocalDirs\copyError`,
+				path:        `testdata/fixtures/importLocalDirs/copyError`,
 				failCopyAt:  0,
 				failProcess: true,
 			},
@@ -230,10 +230,10 @@ func TestImportLocalDirsHandler(t *testing.T) {
 
 	localSVCPath := download.EnvPaths{
 		ModelName:           `taste_head.pt`,
-		DownloadDir:         `testdata\runtimeTest`,
-		ModelDir:            `testdata\modelsForTest`,
-		ModelNameConfigPath: `testdata\config\model.yaml`,
-		ImportDir:           `testdata\import`,
+		DownloadDir:         `testdata/runtimeTest`,
+		ModelDir:            `testdata/modelsForTest`,
+		ModelNameConfigPath: `testdata/config/model.yaml`,
+		ImportDir:           `testdata/import`,
 	}
 
 	method := http.MethodGet

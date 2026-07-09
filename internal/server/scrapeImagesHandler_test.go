@@ -200,13 +200,13 @@ func readStates(t *testing.T, downloadDir string) *scrapestate.StateManifest {
 func launchTestServer(t *testing.T) *httptest.Server {
 	t.Helper()
 
-	img1, err := os.ReadFile(`testdata\fixtures\scrapeImages\image.jpg`)
+	img1, err := os.ReadFile(`testdata/fixtures/scrapeImages/image.jpg`)
 	require.NoError(t, err)
 
-	img2, err := os.ReadFile(`testdata\fixtures\scrapeImages\image2.webp`)
+	img2, err := os.ReadFile(`testdata/fixtures/scrapeImages/image2.webp`)
 	require.NoError(t, err)
 
-	img3, err := os.ReadFile(`testdata\fixtures\scrapeImages\image3.jpg`)
+	img3, err := os.ReadFile(`testdata/fixtures/scrapeImages/image3.jpg`)
 	require.NoError(t, err)
 	var srv *httptest.Server
 	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

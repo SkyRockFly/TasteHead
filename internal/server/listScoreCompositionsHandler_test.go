@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	listScoreCompositionsFixture = `testdata\fixtures\listScoresCompositions\rows.sql`
+	listScoreCompositionsFixture = `testdata/fixtures/listScoresCompositions/rows.sql`
 )
 
 func Test_listScoreCompositionsHandler(t *testing.T) {

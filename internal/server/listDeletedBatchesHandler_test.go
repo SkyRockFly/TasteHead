@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureListDeletedBatches = `testdata\fixtures\listDeletedBatches\rows.sql`
+const fixtureListDeletedBatches = `testdata/fixtures/listDeletedBatches/rows.sql`
 
 func TestListDeletedBatchesHandler(t *testing.T) {
 	type wantResp struct {

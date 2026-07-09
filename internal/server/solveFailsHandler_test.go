@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	testSolveFailsFixture = `testdata\fixtures\solveFails\rows.sql`
+	testSolveFailsFixture = `testdata/fixtures/solveFails/rows.sql`
 )
 
 func TestSolveFailsHandler(t *testing.T) {
@@ -76,7 +76,7 @@ func TestSolveFailsHandler(t *testing.T) {
 					}
 
 					destpath := filepath.Join(svcPaths.DownloadDir, "dir")
-					err := testutil.CreateTempDirFromPicFixtureDir(`testdata\fixtures\solveFails\dir`, destpath)
+					err := testutil.CreateTempDirFromPicFixtureDir(`testdata/fixtures/solveFails/dir`, destpath)
 					require.NoError(t, err)
 
 					failFile, err := os.Create(filepath.Join(destpath,
@@ -153,7 +153,7 @@ func TestSolveFailsHandler(t *testing.T) {
 					}
 
 					destpath := filepath.Join(svcPaths.DownloadDir, "dir")
-					err := testutil.CreateTempDirFromPicFixtureDir(`testdata\fixtures\solveFails\dir`, destpath)
+					err := testutil.CreateTempDirFromPicFixtureDir(`testdata/fixtures/solveFails/dir`, destpath)
 					require.NoError(t, err)
 
 					failFile, err := os.Create(filepath.Join(destpath,
@@ -182,10 +182,10 @@ func TestSolveFailsHandler(t *testing.T) {
 
 	localSVCPath := download.EnvPaths{
 		ModelName:           `taste_head.pt`,
-		DownloadDir:         `testdata\runtimeTest`,
-		ModelDir:            `testdata\modelsForTest`,
-		ModelNameConfigPath: `testdata\config\model.yaml`,
-		ImportDir:           `testdata\import`,
+		DownloadDir:         `testdata/runtimeTest`,
+		ModelDir:            `testdata/modelsForTest`,
+		ModelNameConfigPath: `testdata/config/model.yaml`,
+		ImportDir:           `testdata/import`,
 	}
 
 	downloadReq := download.NewServiceReq{

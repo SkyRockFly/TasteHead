@@ -27,7 +27,7 @@ func TestListBatchesHandler(t *testing.T) {
 		{
 			name: "#01_OK",
 			req: wantReq{
-				fixture: `testdata\fixtures\listBatches\finishedBatches.sql`,
+				fixture: `testdata/fixtures/listBatches/finishedBatches.sql`,
 			},
 			want: wantResp{
 				code: http.StatusOK,
@@ -40,7 +40,7 @@ func TestListBatchesHandler(t *testing.T) {
 		{
 			name: "#02_NO_FINISHED_BATCHES",
 			req: wantReq{
-				fixture: `testdata\fixtures\listBatches\pending batches.sql`,
+				fixture: `testdata/fixtures/listBatches/pending batches.sql`,
 			},
 			want: wantResp{
 				code: http.StatusNotFound,

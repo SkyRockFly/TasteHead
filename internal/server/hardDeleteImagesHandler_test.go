@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureHardDeleteImages = `testdata\fixtures\hardDeleteImages\rows.sql`
+const fixtureHardDeleteImages = `testdata/fixtures/hardDeleteImages/rows.sql`
 
 func TestHardDeleteImagesHandler(t *testing.T) {
 	type wantReq struct {
@@ -98,7 +98,7 @@ func TestHardDeleteImagesHandler(t *testing.T) {
 
 			testPath := filepath.Join(svcPaths.DownloadDir, "dir")
 			require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-				`testdata\fixtures\hardDeleteImages\dir`,
+				`testdata/fixtures/hardDeleteImages/dir`,
 				testPath,
 			))
 			req := httptest.NewRequest(method, hndURL, strings.NewReader(tt.req.body))

@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureGetScrapeState = `testdata\fixtures\getScrapeState\batches.sql`
+const fixtureGetScrapeState = `testdata/fixtures/getScrapeState/batches.sql`
 
 func TestGetScrapeStateHandler(t *testing.T) {
 	type wantReq struct {

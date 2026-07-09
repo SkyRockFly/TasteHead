@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureRemoveBatch = `testdata\fixtures\removeBatch\rows.sql`
+const fixtureRemoveBatch = `testdata/fixtures/removeBatch/rows.sql`
 
 func TestRemoveBatchHandler(t *testing.T) {
 	type wantReq struct {
