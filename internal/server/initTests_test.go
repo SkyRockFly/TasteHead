@@ -23,10 +23,10 @@ const (
 
 var svcPaths = download.EnvPaths{
 	ModelName:           `taste_head.pt`,
-	DownloadDir:         `testdata\runtimeTest`,
-	ModelDir:            `testdata\models`,
-	ModelNameConfigPath: `testdata\config\model.yaml`,
-	ImportDir:           `testdata\import`,
+	DownloadDir:         filepath.Join("testdata", "runtimeTest"),
+	ModelDir:            filepath.Join("testdata", "models"),
+	ModelNameConfigPath: filepath.Join("testdata", "config", "model.yaml"),
+	ImportDir:           filepath.Join("testdata", "import"),
 }
 
 type toAbsStruct struct {
