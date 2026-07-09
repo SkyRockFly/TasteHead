@@ -1,0 +1,41 @@
+name: Tests
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+
+jobs:
+  go-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tastehead_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d tastehead_test"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      TASTE_TEST_DB_URL: postgres://postgres:postgres@localhost:5432/tastehead_test?sslmode=disable
+      TEST_OPENCLIP_PRETRAINED: none
+      TASTEHEAD_DEVICE: cpu
+      TASTEHEAD_EPOCHS: 1
+      TASTEHEAD_LEARNING_RATE: 0.001
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - run: go test ./...
