@@ -5,7 +5,8 @@ on:
     branches: [develop]
   pull_request:
 
-permissions: write-all
+permissions:
+  contents: write
 
 jobs:
   go-test:
@@ -71,19 +72,12 @@ jobs:
         run: |
           goose -dir "$TASTEHEAD_MIGRATIONS_DIR" postgres "$DB_URL" up
 
-      - name: Debug CI layout
-        run: |
-          echo "workspace=$GITHUB_WORKSPACE"
-          echo "DB_URL=$DB_URL"
-          echo "TASTEHEAD_SCRIPTS_DIR=$TASTEHEAD_SCRIPTS_DIR"
-          echo "TASTEHEAD_PYTHON_VENV_DIR=$TASTEHEAD_PYTHON_VENV_DIR"
-          echo "TASTEHEAD_MIGRATIONS_DIR=$TASTEHEAD_MIGRATIONS_DIR"
-          echo "shell TASTEHEAD_EPOCHS=$TASTEHEAD_EPOCHS"
-          echo "shell TASTEHEAD_LEARNING_RATE=$TASTEHEAD_LEARNING_RATE"
-          env | sort | grep TASTEHEAD || true
-          ls -la
-          ls -la config
-          ls -la py/src
-          ls -la "$TASTEHEAD_MIGRATIONS_DIR"
+      - run: go test ./internal/server -coverprofile=coverage.out -covermode=atomic
 
-      - run: go test ./internal/server
+      - name: check test coverage
+        uses: vladopajic/go-test-coverage@v2
+        with:
+          profile: coverage.out
+          threshold-total: 60
+          git-token: ${{ github.ref_name == 'develop' && secrets.GITHUB_TOKEN || '' }}
+          git-branch: badges 
