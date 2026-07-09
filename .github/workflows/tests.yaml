@@ -34,6 +34,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Prepare config
+        run: |
+          cp config/example.yaml config/config.yaml
+          cp config/model.yaml.example config/model.yaml
+          mkdir -p data/download data/import data/training data/models data/temp data/cache data/openclip
+
+
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod

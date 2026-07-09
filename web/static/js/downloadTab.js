@@ -59,6 +59,10 @@ export class DownloadTab extends BaseTab {
       return;
     }
 
+    this.find("#load-local-batches").addEventListener("click", () => {
+      this.importLocalDirs();
+    });
+
     const tagSelects = root.querySelectorAll(".tag-select");
     if (tagSelects.length !== 0) {
       for (const tagSelect of tagSelects) {
@@ -165,13 +169,6 @@ export class DownloadTab extends BaseTab {
     this.find('[data-action="set-model-btn"]').addEventListener("click", () => {
       this.setModel();
     });
-
-    this.find('[data-action="remove-training-rows-btn"]').addEventListener(
-      "click",
-      () => {
-        this.setModel();
-      },
-    );
 
     this.loadBatches();
     this.listTags();

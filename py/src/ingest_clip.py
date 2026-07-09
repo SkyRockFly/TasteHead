@@ -65,8 +65,17 @@ def resolve_device() -> str:
 
     raise RuntimeError(f"unknown TASTEHEAD_DEVICE: {mode}")
 
+def env_int(name: str, default: int = 0) -> int:
+    raw = os.getenv(name, str(default)).strip()
+    try:
+        return int(raw)
+    except ValueError as e:
+        raise RuntimeError(f"invalid int env {name}={raw!r}") from e
+
 DEVICE = resolve_device()
-BATCH_SIZE = int(os.getenv("TASTEHEAD_CLIP_BATCH_SIZE", "4" if DEVICE == "cpu" else "16"))
+BATCH_SIZE = env_int("TASTEHEAD_CLIP_BATCH_SIZE")
+if BATCH_SIZE <= 0:
+    raise RuntimeError("TASTEHEAD_EPOCHS must be > 0")
 
 def read_image_table(img_path: Path) -> list[ImageRow]:
     rows: list[ImageRow] = []

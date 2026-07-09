@@ -48,6 +48,13 @@ export class TrainingTab extends BaseTab {
       this.renderGrid((img) => this.makeCard(img));
     });
 
+    this.find('[data-action="remove-training-rows-btn"]').addEventListener(
+      "click",
+      () => {
+        this.removeTrainingRows();
+      },
+    );
+
     const root = this.getRoot();
     if (!root) {
       console.error("no root");

@@ -17,12 +17,6 @@ Target_logits = List[List[int]]
 CLIP_PATH = Path(__file__).resolve().parent.parent / "clip"
 criterion = nn.BCEWithLogitsLoss()
 
-BATCH_SIZE = 32
-EPOCHS = 140
-LEARNING_RATE = 1e-3
-
-
-
 def resolve_device() -> str:
     mode = os.getenv("TASTEHEAD_DEVICE", "auto").lower()
 
@@ -38,6 +32,34 @@ def resolve_device() -> str:
         return "cuda" if torch.cuda.is_available() else "cpu"
 
     raise RuntimeError(f"unknown TASTEHEAD_DEVICE: {mode}")
+
+def env_int(name: str, default: int = 0) -> int:
+    raw = os.getenv(name, str(default)).strip()
+    try:
+        return int(raw)
+    except ValueError as e:
+        raise RuntimeError(f"invalid int env {name}={raw!r}") from e
+
+
+def env_float(name: str, default: float = 0.0) -> float:
+    raw = os.getenv(name, str(default)).strip()
+    try:
+        return float(raw)
+    except ValueError as e:
+        raise RuntimeError(f"invalid float env {name}={raw!r}") from e
+
+DEVICE = resolve_device()
+BATCH_SIZE = env_int("TASTEHEAD_CLIP_BATCH_SIZE")
+if BATCH_SIZE <= 0:
+    raise RuntimeError("TASTEHEAD_EPOCHS must be > 0")
+
+EPOCHS = env_int("TASTEHEAD_EPOCHS")
+if EPOCHS <= 0:
+    raise RuntimeError("TASTEHEAD_EPOCHS must be > 0")
+
+LEARNING_RATE = env_float("TASTEHEAD_LEARNING_RATE")
+if LEARNING_RATE <= 0:
+    raise RuntimeError("TASTEHEAD_LEARNING_RATE must be > 0")
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -246,7 +268,7 @@ def main():
         model_path = Path(model_path).resolve()
         print("MODEL NAME:",model_path)
 
-    DEVICE = resolve_device()
+    
 
     vects = np.load(vect_path)
     if learn_mode:

@@ -799,7 +799,7 @@ func (s *Service) parseAndDownload(
 
 		result, err := s.downloadPageOnce(dirPath, req)
 		if err != nil {
-			return nil, fmt.Errorf("downloadPageOnce")
+			return nil, fmt.Errorf("downloadPageOnce:%w", err)
 		}
 
 		if len(result.Fails) > 0 {
