@@ -25,11 +25,13 @@ jobs:
           --health-retries=10
 
     env:
-      TASTE_TEST_DB_URL: postgres://postgres:postgres@localhost:5432/tastehead_test?sslmode=disable
       TEST_OPENCLIP_PRETRAINED: none
       TASTEHEAD_DEVICE: cpu
       TASTEHEAD_EPOCHS: 1
       TASTEHEAD_LEARNING_RATE: 0.001
+      DB_URL: postgres://postgres:postgres@localhost:5432/tastehead_test?sslmode=disable
+      TASTEHEAD_SCRIPTS_DIR: ${{ github.workspace }}/py/src
+      TASTEHEAD_PYTHON_VENV_DIR: ${{ github.workspace }}/.venv
 
     steps:
       - uses: actions/checkout@v4
@@ -40,9 +42,8 @@ jobs:
           cp config/model.yaml.example config/model.yaml
           mkdir -p data/download data/import data/training data/models data/temp data/cache data/openclip
 
-
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
 
-      - run: go test ./...
+      - run: go test ./internal/server

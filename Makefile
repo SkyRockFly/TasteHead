@@ -35,7 +35,7 @@ TASTE_DB_URL       ?= postgres://$(TASTE_DB_USER):$(TASTE_DB_PASSWORD)@localhost
 TASTE_MIGRATIONS_DIR ?= ./migrations
 TASTEHEAD_SCRIPTS_DIR ?= $(abspath py/src)
 TASTEHEAD_PYTHON_VENV_DIR ?= $(abspath .venv)
-GO_TEST_TASTE_FLAGS  ?= ./internal/server -v -count=1 -run TestTrainModelHandler/01_OK
+GO_TEST_TASTE_FLAGS  ?= ./internal/server -count=1 -failfast
 
 .PHONY: taste-db-up taste-db-wait taste-migrate taste-test taste-db-down
 
@@ -65,6 +65,9 @@ taste-test: taste-db-up taste-migrate
 	TASTEHEAD_SCRIPTS_DIR="$(TASTEHEAD_SCRIPTS_DIR)" \
 	TASTEHEAD_PYTHON_VENV_DIR="$(TASTEHEAD_PYTHON_VENV_DIR)" \
 	OPENCLIP_PRETRAINED="$(TEST_OPENCLIP_PRETRAINED)" \
+	TASTEHEAD_EPOCHS="$(TASTEHEAD_EPOCHS)" \
+	TASTEHEAD_LEARNING_RATE="$(TASTEHEAD_LEARNING_RATE)" \
+	TASTEHEAD_CLIP_BATCH_SIZE="$(TASTEHEAD_CLIP_BATCH_SIZE)" \
 	go test $(GO_TEST_TASTE_FLAGS)
 	@$(MAKE) taste-db-down
 

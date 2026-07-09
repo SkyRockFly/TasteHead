@@ -102,6 +102,10 @@ func GetAppConfig() (*AppConfig, error) {
 		return nil, fmt.Errorf("abs envConfig: %w", err)
 	}
 
+	if err := ensureRuntimeDirs(&appConfig.Env); err != nil {
+		return nil, fmt.Errorf("ensure runtime dirs: %w", err)
+	}
+
 	if err := validatePathLayout(&appConfig.Env); err != nil {
 		return nil, fmt.Errorf("validatePathLayout: %w", err)
 	}
@@ -224,4 +228,25 @@ func pathInsideOrSame(parent, child string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func ensureRuntimeDirs(env *EnvConfig) error {
+	dirs := []string{
+		env.DownloadDir,
+		env.ImportDir,
+		env.TrainingDir,
+		env.ModelDir,
+	}
+
+	for _, dir := range dirs {
+		if strings.TrimSpace(dir) == "" {
+			return fmt.Errorf("runtime dir is empty")
+		}
+
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("mkdir %s: %w", dir, err)
+		}
+	}
+
+	return nil
 }

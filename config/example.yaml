@@ -6,7 +6,7 @@ env_paths:
   training_dir: /appdata/training
   model_dir: /appdata/models
 db_config:
-  url: postgres://postgres:postgres@brum-bear:5432/tastehead?sslmode=disable
+  url: postgres://postgres:postgres@postgres:5432/tastehead?sslmode=disable
 logger:
   timestamp: "2006-01-02 15:04:05"
   formatlevel: "%-6s"
