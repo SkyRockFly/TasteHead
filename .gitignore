@@ -24,3 +24,9 @@ coverage.out
 
 # vscode
 .vscode/
+
+#test
+internal/server/testdata/runtimeTest/
+internal/server/testdata/import/
+internal/server/testdata/models/
+internal/server/testdata/training/

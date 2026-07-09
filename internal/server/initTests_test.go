@@ -122,7 +122,27 @@ func TestMain(m *testing.M) {
 		log.Fatalf("download.svc: %v", err)
 	}
 
+	dirs := []string{
+		filepath.Join("testdata", "runtimeTest"),
+		filepath.Join("testdata", "import"),
+		filepath.Join("testdata", "models"),
+		filepath.Join("testdata", "training"),
+	}
+
+	for _, dir := range dirs {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			log.Fatalf("mkdir %s: %v", dir, err)
+		}
+	}
+
 	code := m.Run()
+
+	for _, dir := range dirs {
+		if err := os.RemoveAll(dir); err != nil {
+			log.Fatalf("remove %s: %v", dir, err)
+		}
+	}
+
 	os.Exit(code)
 }
 
