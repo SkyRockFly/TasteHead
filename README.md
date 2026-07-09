@@ -1,6 +1,6 @@
 # TasteHead
 
-[![Tests](https://github.com/SkyRockFly/TasteHead/actions/workflows/tests.yml/badge.svg?branch=develop)](https://github.com/SkyRockFly/TasteHead/actions/workflows/tests.yml)
+[![Tests](https://github.com/SkyRockFly/TasteHead/actions/workflows/tests.yaml/badge.svg?branch=develop)](https://github.com/SkyRockFly/TasteHead/actions/workflows/tests.yaml)
 
 TasteHead is a local tool for collecting, organizing, scoring, and training on image datasets.
 It uses OpenCLIP embeddings and a small trainable model/head to predict which scraped or imported images may be more interesting for the user. The goal is to reduce manual search time and make image filtering more comfortable.
