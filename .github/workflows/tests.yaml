@@ -27,7 +27,7 @@ jobs:
     env:
       TEST_OPENCLIP_PRETRAINED: none
       TASTEHEAD_DEVICE: cpu
-      TASTEHEAD_EPOCHS: 1
+      TASTEHEAD_EPOCHS: 120
       TASTEHEAD_LEARNING_RATE: 0.001
       DB_URL: postgres://postgres:postgres@localhost:5432/tastehead_test?sslmode=disable
       TASTEHEAD_SCRIPTS_DIR: ${{ github.workspace }}/py/src

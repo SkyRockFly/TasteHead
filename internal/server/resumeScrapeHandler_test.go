@@ -91,7 +91,7 @@ func TestResumeScrapeHandler(t *testing.T) {
 				body: `{"batch_name":"unprocessed"}`,
 				prepareDir: func(t *testing.T) {
 					t.Helper()
-					fixture := `testdata\fixtures\resumeScrape\unprocessed`
+					fixture := `testdata/fixtures/resumeScrape/unprocessed`
 					dest := filepath.Join(svcPaths.DownloadDir, "unprocessed")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 
@@ -121,7 +121,7 @@ func TestResumeScrapeHandler(t *testing.T) {
 				body: `{"batch_name":"cancelledDuringPageScrape"}`,
 				prepareDir: func(t *testing.T) {
 					t.Helper()
-					fixture := `testdata\fixtures\resumeScrape\cancelledDuringPageScrape`
+					fixture := `testdata/fixtures/resumeScrape/cancelledDuringPageScrape`
 					dest := filepath.Join(svcPaths.DownloadDir, "cancelledDuringPageScrape")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 

@@ -59,7 +59,7 @@ func TestListBatchesWithFailsHandler(t *testing.T) {
 			req: wantReq{
 				prepareDir: func(t *testing.T) {
 					t.Helper()
-					fixture := `testdata\fixtures\listBatchesWithFails\batchWithFailedState`
+					fixture := `testdata/fixtures/listBatchesWithFails/batchWithFailedState`
 					dest := filepath.Join(svcPaths.DownloadDir, "batchWithFailedState")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 				},

@@ -71,11 +71,11 @@ func TestGetScrapeStateHandler(t *testing.T) {
 			require.NoError(t, testutil.LoadFixtures(pool, fixtureGetScrapeState, resetALLFixtures))
 			require.NoError(t, testutil.ClearDir(svcPaths.DownloadDir))
 			require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-				`testdata\fixtures\getScrapeState\withoutState`,
+				`testdata/fixtures/getScrapeState/withoutState`,
 				filepath.Join(svcPaths.DownloadDir, "withoutState"),
 			))
 			require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-				`testdata\fixtures\getScrapeState\withState`,
+				`testdata/fixtures/getScrapeState/withState`,
 				filepath.Join(svcPaths.DownloadDir, "withState"),
 			))
 
