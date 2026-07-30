@@ -13,6 +13,7 @@ import (
 	imagerowsvc "scraper/internal/service/imageRow"
 	trainingsvc "scraper/internal/service/training"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -96,7 +97,11 @@ func TestMain(m *testing.M) {
 	svcPaths.ImportDir = absEnv.ImportDir
 	svcPaths.ModelDir = absEnv.ModelDir
 
-	scraperRepo = htmlparser.NewRepository(pyPaths)
+	scraperRepo = htmlparser.NewRepository(pyPaths, htmlparser.ScrapeConfig{
+		UserAgent:          "le docker container",
+		DownloadImagePause: time.Millisecond * 500,
+		DownloadPagePause:  time.Millisecond * 500,
+	})
 	imagerowRepo = imgrowpg.NewRepository(pool)
 	trainingRepo = trainingpg.NewRepository(pool)
 

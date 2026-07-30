@@ -32,7 +32,13 @@ import (
 
 type Row map[string]string
 
-var validExts = []string{".jpg", ".png", ".jpeg", ".webp"}
+var validExts = []string{".jpg", ".png", ".jpeg", ".webp", ".gif"}
+
+type ScrapeConfig struct {
+	UserAgent          string
+	DownloadImagePause time.Duration
+	DownloadPagePause  time.Duration
+}
 
 type EnvPaths struct {
 	PythonVenvDir string
@@ -42,21 +48,23 @@ type EnvPaths struct {
 type Repository struct {
 	client *http.Client
 	paths  EnvPaths
+	cfg    ScrapeConfig
 }
 
 type HeaderRow map[string]string
 
-func NewRepository(paths EnvPaths) *Repository {
+func NewRepository(paths EnvPaths, cfg ScrapeConfig) *Repository {
 	return &Repository{
 		paths: paths,
 		client: &http.Client{
 			Timeout: 60 * time.Second,
 		},
+		cfg: cfg,
 	}
 }
 
 func (r *Repository) ParseHTML(req scraper.ParseReq) (scraper.ParseResp, error) {
-	httpResp, err := sendGetRequest(req.URL, r.client)
+	httpResp, err := r.sendGetRequest(req.URL)
 	if err != nil {
 		return scraper.ParseResp{}, fmt.Errorf("send request: %w", err)
 	}
@@ -85,6 +93,8 @@ func (r *Repository) ParseHTML(req scraper.ParseReq) (scraper.ParseResp, error) 
 		URL:     urls,
 		NextURL: nextURL,
 	}
+
+	time.Sleep(r.cfg.DownloadPagePause * time.Millisecond)
 	return resp, nil
 }
 
@@ -105,7 +115,7 @@ func (r *Repository) DownloadPic(downloadPath string, url string) *scraper.Faile
 		return &fail
 	}
 
-	resp, err := sendGetRequest(url, r.client)
+	resp, err := r.sendGetRequest(url)
 	if err != nil {
 		fail := handleDownloadError(url, "sendGetRequest", err, apperror.IssueGetRequestError, true)
 		return &fail
@@ -116,6 +126,8 @@ func (r *Repository) DownloadPic(downloadPath string, url string) *scraper.Faile
 		fail := handleDownloadError(url, "sendGetRequest", err, apperror.IssueCreatePic, true)
 		return &fail
 	}
+
+	time.Sleep(r.cfg.DownloadImagePause * time.Millisecond)
 
 	return nil
 }
@@ -785,14 +797,14 @@ func streamPipe(prefix string, r io.Reader, dst *bytes.Buffer) {
 	}
 }
 
-func sendGetRequest(picURL string, client *http.Client) (*http.Response, error) {
+func (r *Repository) sendGetRequest(picURL string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", picURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("make request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:146.0) Gecko/20100101 Firefox/146.0")
-	resp, err := client.Do(req)
+	req.Header.Set("User-Agent", r.cfg.UserAgent)
+	resp, err := r.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("get request: %w", err)
 	}

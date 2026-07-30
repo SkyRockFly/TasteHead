@@ -105,13 +105,13 @@ export class BaseTab {
   canGoNext() {
     if (this.state.hasMore_next) return true;
 
-    core.showToast("has_more=false, дальше пусто.");
+    core.showToast("has_more=false, no more images.");
     return false;
   }
   canGoPrev() {
     if (this.state.hasMore_prev) return true;
 
-    core.showToast("has_more=false, дальше пусто.");
+    core.showToast("has_more=false, no more images.");
     return false;
   }
 
@@ -124,7 +124,7 @@ export class BaseTab {
         this.state.hasMore_prev = false;
       }
 
-      core.showToast("Загружаю...");
+      core.showToast("Loading...");
 
       const data = await handler(payload);
 
@@ -158,7 +158,7 @@ export class BaseTab {
 
         const placeholder = document.createElement("option");
         placeholder.value = "";
-        placeholder.textContent = "- выбери тег -";
+        placeholder.textContent = "- choose tag -";
         select.appendChild(placeholder);
 
         for (const t of this.state.tags) {
@@ -170,7 +170,7 @@ export class BaseTab {
         if (allowNew) {
           const newOpt = document.createElement("option");
           newOpt.value = "__new__";
-          newOpt.textContent = "Добавить новый тег";
+          newOpt.textContent = "Add new tag";
           select.appendChild(newOpt);
         }
       }
@@ -184,7 +184,7 @@ export class BaseTab {
       return;
     }
 
-    const desc = prompt("tag's desc (может быть пустым):") || "";
+    const desc = prompt("tag's desc (optional):") || "";
 
     const payload = {
       name: name.trim(),
@@ -240,7 +240,13 @@ export class BaseTab {
   async loadBatches() {
     try {
       const data = await api.listBatches();
-      this.state.batches = data.batches || [];
+      const batches = data.batches ?? [];
+      this.state.batches = [...batches].sort((a, b) =>
+        String(a.name ?? "").localeCompare(String(b.name ?? ""), undefined, {
+          sensitivity: "base",
+          numeric: true,
+        }),
+      );
       const tab = document.getElementById(this.rootID);
       const selects = tab.querySelectorAll(".batch-select");
       if (selects.length === 0) {
@@ -288,7 +294,7 @@ export class BaseTab {
       const data = await api.updateUserScores({ scores });
 
       if (!data.accepted) {
-        throw new Error("backend вернул accepted=false");
+        throw new Error("backend returned accepted=false");
       }
 
       for (const img of this.state.items) {

@@ -61,7 +61,7 @@ WHERE ID = $1 AND deleted_at IS NULL`
 WHERE deleted_at IS NULL`
 	sqlListScoreCompositon = `SELECT COUNT(*) FROM training tr
 JOIN download d ON tr.image_id = d.id
-WHERE tr.tag_id = $1 AND d.user_score = $2`
+WHERE tr.tag_id = $1 AND d.user_score = $2 AND tr.deleted_at IS NULL AND d.deleted_at IS NULL`
 	sqlListTagsByImageIDs = `SELECT d.id,t.name FROM tag t
 JOIN training tr ON tr.tag_id = t.id
 JOIN download d ON tr.image_id = d.id

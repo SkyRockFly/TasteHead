@@ -4,6 +4,7 @@
 ![coverage](https://raw.githubusercontent.com/SkyRockFly/TasteHead/badges/.badges/develop/coverage.svg)
 
 
+
 TasteHead is a local tool for collecting, organizing, scoring, and training on image datasets.
 It uses OpenCLIP embeddings and a small trainable model/head to predict which scraped or imported images may be more interesting for the user. The goal is to reduce manual search time and make image filtering more comfortable.
 
@@ -30,41 +31,51 @@ cp config/model.yaml.example config/model.yaml
 
 config.yaml contains Go/backend configuration:
 
--container paths
--PostgreSQL connection
--server settings
--logger settings
--Python script paths
+- container paths
+- PostgreSQL connection
+- server settings
+- logger settings
+- Python script paths
+
 model.yaml contains the currently selected model for evaluation. It can be changed from the UI at runtime and is saved when the program exits.
 
 ## Docker Compose files
 
 There are three Docker Compose files:
 
--compose.yaml
+- compose.yaml
 Base CPU-safe configuration. Contains all services and is always used.
--compose.nvidia.yaml
+- compose.nvidia.yaml
 NVIDIA CUDA override for GPU inference/training.
--compose.amd.yaml
+- compose.amd.yaml
 AMD ROCm override for GPU inference/training.
 
 GPU compose files are overrides. They should be used together with compose.yaml.
--compose.yaml. CPU mode and contains all services, always used in launch command, where some parameters will be overrided. Obviously slow/
--compose.nvidia.yaml. Contains parameters for launching training and evaluating on Nvidia GPUs (CUDA)
--compose.nvidia.yaml. Contains parameters for launching training and evaluating on AMD GPUs (Rocm)
+- compose.yaml. CPU mode and contains all services, always used in launch command, where some parameters will be overrided. Obviously slow/
+- compose.nvidia.yaml. Contains parameters for launching training and evaluating on Nvidia GPUs (CUDA)
+- compose.nvidia.yaml. Contains parameters for launching training and evaluating on AMD GPUs (Rocm)
 
 ## Launch
-CPU mode
 
-Build:
+Download repository:
+
 ```bash
-docker compose -f compose.yaml build
+git clone https://github.com/SkyRockFly/TasteHead
 ```
-Run:
+
+Copy example.yaml as config.yaml:
 ```bash
-docker compose -f compose.yaml up
+cp ./config/example.yaml ./config/config.yaml
 ```
-Or build and run:
+
+Copy model.yaml.example as model.yaml:
+```bash
+cp ./config/model.yaml.example ./config/model.yaml
+```
+
+CPU mode:
+
+Build and run:
 ```bash
 docker compose -f compose.yaml up --build
 ```
@@ -72,40 +83,24 @@ CPU mode is mainly intended for compatibility and small tests. Large OpenCLIP mo
 
 NVIDIA CUDA mode
 
-Build:
-```bash
-docker compose -f compose.yaml -f compose.nvidia.yaml build
-```
-Run:
-```bash
-docker compose -f compose.yaml -f compose.nvidia.yaml up
-```
-Or build and run:
+Build and run:
 ```bash
 docker compose -f compose.yaml -f compose.nvidia.yaml up --build
 ```
 AMD ROCm mode
 
-Build:
-```bash
-docker compose -f compose.yaml -f compose.amd.yaml build
-```
-Run:
-```bash
-docker compose -f compose.yaml -f compose.amd.yaml up
-```
-Or build and run:
+Build and run:
 ```bash
 docker compose -f compose.yaml -f compose.amd.yaml up --build
 ```
 ## Environment
 
 The .env file can be used to configure:
-data directory path
-OpenCLIP pretrained weights name or local weights path
-OpenCLIP batch size
-Go test environment
-PostgreSQL test database settings
+- data directory path
+- OpenCLIP pretrained weights name or local weights path
+- OpenCLIP batch size
+- Go test environment
+- PostgreSQL test database settings
 
 Example OpenCLIP pretrained value:
 
@@ -123,6 +118,30 @@ TEST_OPENCLIP_PRETRAINED=random
 Random weights are useful for integration tests because they exercise the real OpenCLIP pipeline without downloading large model weights.
 
 Do not use random embeddings for real training.
+
+```env
+TASTEHEAD_CLIP_BATCH_SIZE=16
+```
+
+Number of images processed in batch, depends on GPU's VRAM
+
+```env
+TASTEHEAD_DATA_DIR=./data
+```
+
+Path of data folder
+
+```env
+TASTEHEAD_EPOCHS=120
+```
+
+Shows how many repeates will be used for training a model
+
+```env
+TASTEHEAD_LEARNING_RATE=0.001
+```
+
+Model learning rate
 
 ## Usage
 Import local images

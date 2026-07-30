@@ -818,8 +818,6 @@ func (s *Service) parseAndDownload(
 			if err := scrapestate.AppendFailReport(dirPath, jsonReport); err != nil {
 				return nil, fmt.Errorf("append fail report: %w", err)
 			}
-
-			time.Sleep(800 * time.Millisecond)
 		}
 
 		pagesAfterThis := pages - i - 1
@@ -908,7 +906,6 @@ func (s *Service) parsePage(req ParsePageReq) (ParsePageResp, error) {
 		return ParsePageResp{}, fmt.Errorf("parseResp: %w", err)
 	}
 	urls = append(urls, parseResp.URL...)
-	time.Sleep(1000 * time.Millisecond)
 
 	nextURL, err := makeURL(parseResp.NextURL, repoReq.URL)
 	if err != nil {
@@ -939,6 +936,8 @@ func (s *Service) downloadPics(dirPath string, urls []string) ([]FailedDownload,
 			svc := remapToFailedDownloadSVC(*fail)
 			failed = append(failed, svc)
 		}
+
+		time.Sleep(1500 * time.Millisecond)
 	}
 
 	if len(failed) != 0 {

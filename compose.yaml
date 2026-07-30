@@ -5,7 +5,7 @@ services:
         POSTGRES_PASSWORD: ${TASTE_DB_PASSWORD:-postgres}
         POSTGRES_DB: tasteheaddb
       ports:
-        - "5432:5432"
+        - "5435:5432"
       volumes:
         - "pgdata_tastehead:/var/lib/postgresql/data"
       healthcheck:
@@ -42,7 +42,6 @@ services:
       volumes:
         - ./config/config.yaml:/app/config/config.yaml:ro
         - ./config/model.yaml:/app/config/model.yaml
-        - ./web:/app/web:ro
         - "${TASTEHEAD_DATA_DIR:-./data}/download:/appdata/download"
         - "${TASTEHEAD_DATA_DIR:-./data}/import:/appdata/import"
         - "${TASTEHEAD_DATA_DIR:-./data}/training:/appdata/training"

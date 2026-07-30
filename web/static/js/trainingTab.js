@@ -91,7 +91,7 @@ export class TrainingTab extends BaseTab {
     this.loadBatchesIntoState();
   }
 
-  buildPayload(resetCursor, next) {
+  buildPayload(resetCursor, next, refresh) {
     const tagIDInput = this.find('[data-action="list-tags"]');
     const limitInput = this.find("#page-limit");
     const scoreInput = this.find("#score-filter");
@@ -237,8 +237,7 @@ export class TrainingTab extends BaseTab {
     scoreOptions.forEach((val) => {
       const opt = document.createElement("option");
       opt.value = val;
-      opt.textContent =
-        val === "" ? "— оставить как есть —" : Number(val).toFixed(2);
+      opt.textContent = val === "" ? "— no change —" : Number(val).toFixed(2);
       select.appendChild(opt);
     });
 

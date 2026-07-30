@@ -92,7 +92,7 @@ export class DeletedTab extends BaseTab {
     try {
       const data = await api.listDeletedBatches();
 
-      core.showToast("Загружаю...");
+      core.showToast("Loading...");
 
       this.state.items = data.batches || [];
       this.renderGrid((batch) => this.makeCardBatch(batch));

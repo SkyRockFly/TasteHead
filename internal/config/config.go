@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"scraper/internal/pkg/kit"
 	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog"
@@ -17,6 +18,7 @@ type AppConfig struct {
 	Env    EnvConfig    `yaml:"env_paths" validate:"required"`
 	DB     DBConfig     `yaml:"db_config" validate:"required"`
 	Server ServerConfig `yaml:"server" validate:"required"`
+	Scrape ScrapeConfig `yaml:"scrape_config" validate:"required"`
 }
 
 type ServerConfig struct {
@@ -36,6 +38,12 @@ type LoggerConfig struct {
 	Timestamp   string `yaml:"timestamp" validate:"required,timestamp"`
 	FormatLevel string `yaml:"formatlevel" validate:"required,formatlevel"`
 	Level       string `yaml:"level" validate:"required,loglevel"`
+}
+
+type ScrapeConfig struct {
+	UserAgent          string        `yaml:"user_agent" validate:"required"`
+	DownloadImagePause time.Duration `yaml:"download_image_pause" validate:"gt=0s"`
+	DownloadPagePause  time.Duration `yaml:"download_page_pause" validate:"gt=0s"`
 }
 
 type DBConfig struct {

@@ -1,5 +1,5 @@
 -include .env
-# neural network section
+# Neural network section
 
 .PHONY: all manage-files model-computing clip-ingest model-training
 

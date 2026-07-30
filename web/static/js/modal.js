@@ -157,7 +157,7 @@ function renderScoreControls(img) {
   wrap.style.marginTop = "6px";
 
   const label = document.createElement("label");
-  label.textContent = "Set score (0..1, шаг 0.25)";
+  label.textContent = "Set score (0..1, step 0.25)";
 
   const select = document.createElement("select");
   select.id = "modal-score-select";
@@ -183,7 +183,7 @@ function renderScoreControls(img) {
   btn.id = "modal-apply-btn";
   btn.className = "primary";
   btn.style.marginTop = "4px";
-  btn.textContent = "Применить к этой картинке";
+  btn.textContent = "Apply to this image";
 
   btn.addEventListener("click", async () => {
     const value = select.value;

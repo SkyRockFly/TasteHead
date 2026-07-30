@@ -803,9 +803,13 @@ func validateListDeletedImagesReq(sl validator.StructLevel) {
 func validateListImagesReq(sl validator.StructLevel) {
 	req := sl.Current().Interface().(ListImagesReq)
 
-	hasId := req.Cursor > 0
-
-	if !req.Next && !hasId {
-		sl.ReportError(req.Next, "Next", "next", "cursorpair", "")
+	if !req.Next && req.Cursor <= 0 {
+		sl.ReportError(
+			req.Cursor,
+			"Cursor",
+			"cursor",
+			"required_for_prev",
+			"",
+		)
 	}
 }
