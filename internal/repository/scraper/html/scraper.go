@@ -295,8 +295,12 @@ func (r *Repository) ProcessFiles(ctx context.Context, req scraper.ProcessFilesR
 	vectPath := filepath.Join(req.DownloadPath, "output", "clip_eval_vecs.npy")
 
 	if _, err := os.Stat(req.ModelPath); err != nil {
-		log.Warn().Msg("No model found, all scores are set to 0.0")
-		return nil
+		if errors.Is(err, os.ErrNotExist) {
+			log.Warn().Msg("No model found, scoring skipped; empty scores will be stored as 0.0")
+			return nil
+		}
+
+		return fmt.Errorf("stat model %q: %w", req.ModelPath, err)
 	}
 
 	cmdArgs = []string{
