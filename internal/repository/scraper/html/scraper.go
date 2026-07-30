@@ -94,7 +94,7 @@ func (r *Repository) ParseHTML(req scraper.ParseReq) (scraper.ParseResp, error) 
 		NextURL: nextURL,
 	}
 
-	time.Sleep(r.cfg.DownloadPagePause * time.Millisecond)
+	time.Sleep(r.cfg.DownloadPagePause)
 	return resp, nil
 }
 
@@ -127,7 +127,7 @@ func (r *Repository) DownloadPic(downloadPath string, url string) *scraper.Faile
 		return &fail
 	}
 
-	time.Sleep(r.cfg.DownloadImagePause * time.Millisecond)
+	time.Sleep(r.cfg.DownloadImagePause)
 
 	return nil
 }

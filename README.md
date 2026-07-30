@@ -73,6 +73,11 @@ Copy model.yaml.example as model.yaml:
 cp ./config/model.yaml.example ./config/model.yaml
 ```
 
+Copy .env.example as .env:
+```bash
+cp .env.example .env
+```
+
 CPU mode:
 
 Build and run:

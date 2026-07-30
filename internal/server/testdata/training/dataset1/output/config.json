@@ -1,7 +1,0 @@
-{
-  "model_name": "ViT-H-14",
-  "pretrained": null,
-  "embed_dim": 1024,
-  "device": "cuda",
-  "batch_size": 64
-}
