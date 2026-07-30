@@ -294,6 +294,11 @@ func (r *Repository) ProcessFiles(ctx context.Context, req scraper.ProcessFilesR
 	scriptName = filepath.Join(r.paths.ScriptsDir, "train_network.py")
 	vectPath := filepath.Join(req.DownloadPath, "output", "clip_eval_vecs.npy")
 
+	if _, err := os.Stat(req.ModelPath); err != nil {
+		log.Warn().Msg("No model found, all scores are set to 0.0")
+		return nil
+	}
+
 	cmdArgs = []string{
 		scriptName,
 		"--vect_path", vectPath,
@@ -538,9 +543,15 @@ func (r *Repository) CSVToRows(csvPath string) ([]scraper.CSVRow, error) {
 		dir := row["dir"]
 		path := row["path"]
 
-		modelScore, err := strconv.ParseFloat(row["model_score"], 32)
-		if err != nil {
-			return nil, fmt.Errorf("parse float model_score: %w", err)
+		rawModelScore := strings.TrimSpace(row["model_score"])
+
+		modelScore := 0.0
+		if rawModelScore != "" {
+			var err error
+			modelScore, err = strconv.ParseFloat(rawModelScore, 32)
+			if err != nil {
+				return nil, fmt.Errorf("parse float model_score %q: %w", rawModelScore, err)
+			}
 		}
 
 		var userScore *float32
@@ -573,7 +584,6 @@ func (r *Repository) ComputeHashesInDir(dir string) ([]scraper.File, error) {
 	list := make([]scraper.File, 0)
 	if err := filepath.Walk(dir, func(path string, info fs.FileInfo, walkErr error) error {
 		if walkErr != nil {
-			fmt.Printf("dir:%s\n\n", dir)
 			return fmt.Errorf("walk err: %w", walkErr)
 		}
 
@@ -712,7 +722,6 @@ func executeCommand(ctx context.Context, exePath string, args ...string) error {
 	)
 
 	cmd.Env = append(os.Environ(),
-		"HF_HUB_OFFLINE=1",
 		"HF_HUB_VERBOSITY=error",
 		"PYTORCH_ALLOC_CONF=expandable_segments:True",
 		"PYTHONUNBUFFERED=1",

@@ -20,7 +20,7 @@ services:
           condition: service_healthy
       volumes:
         - ./migrations:/migrations:ro
-      entrypoint: ["goose", "-dir", "/migrations", "up-to", "4"]
+      entrypoint: ["goose", "-dir", "/migrations", "up-to", "5"]
       environment:
         GOOSE_DRIVER: postgres
         GOOSE_DBSTRING: postgres://postgres:${TASTE_DB_PASSWORD:-postgres}@db-tastehead:5432/tasteheaddb?sslmode=disable
