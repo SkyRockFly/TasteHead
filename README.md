@@ -93,6 +93,8 @@ Build and run:
 docker compose -f compose.yaml -f compose.amd.yaml up --build
 ```
 
+Open web-page on `http://localhost:8080/ui/scraper/`
+
 On the first ingest_clip run, TasteHead downloads the configured pretrained OpenCLIP weights if they are not already cached. The download may be several gigabytes and requires network access. Subsequent runs use the cached weights.
 
 ## Environment
