@@ -5,28 +5,50 @@
 
 
 
-TasteHead is a local tool for collecting, organizing, scoring, and training on image datasets.
-It uses OpenCLIP embeddings and a small trainable model/head to predict which scraped or imported images may be more interesting for the user. The goal is to reduce manual search time and make image filtering more comfortable.
+TasteHead is a local tool for collecting, organizing, scoring, and training models on image datasets.
 
+It uses OpenCLIP embeddings and a small trainable scoring head to predict which scraped or imported images are likely to match the user's preferences. Its purpose is to reduce manual search time and make large image collections easier to filter.
 
 The project consists of:
+
 - Go backend
 - PostgreSQL database
 - Python / PyTorch / OpenCLIP pipeline
-- Vanilla JS frontend
+- Vanilla JavaScript frontend
 - Docker Compose runtime
 
 ## Status
 
-Work-in-progress personal project.
+Functional personal project under development.
 
-## Configuration
+## Docker Compose files
 
-Copy example config files:
+There are three Docker Compose files:
+
+- `compose.yaml`
+Base CPU-safe configuration. Contains all services and is always used.
+
+- `compose.nvidia.yaml`
+NVIDIA CUDA override for GPU inference/training.
+
+- `compose.amd.yaml`
+AMD ROCm override for GPU inference/training.
+
+GPU compose files are overrides. They should be used together with compose.yaml.
+
+
+## Launch
+
+Download repository:
 
 ```bash
-cp config/config.example.yaml config/config.yaml
-cp config/model.yaml.example config/model.yaml
+git clone https://github.com/SkyRockFly/TasteHead
+cd TasteHead
+```
+
+Copy example.yaml to config.yaml:
+```bash
+cp ./config/example.yaml ./config/config.yaml
 ```
 
 config.yaml contains Go/backend configuration:
@@ -36,44 +58,16 @@ config.yaml contains Go/backend configuration:
 - server settings
 - logger settings
 - Python script paths
+- Scrape config (intervals, user-agent)
 
-model.yaml contains the currently selected model for evaluation. It can be changed from the UI at runtime and is saved when the program exits.
-
-## Docker Compose files
-
-There are three Docker Compose files:
-
-- compose.yaml
-Base CPU-safe configuration. Contains all services and is always used.
-- compose.nvidia.yaml
-NVIDIA CUDA override for GPU inference/training.
-- compose.amd.yaml
-AMD ROCm override for GPU inference/training.
-
-GPU compose files are overrides. They should be used together with compose.yaml.
-- compose.yaml. CPU mode and contains all services, always used in launch command, where some parameters will be overrided. Obviously slow/
-- compose.nvidia.yaml. Contains parameters for launching training and evaluating on Nvidia GPUs (CUDA)
-- compose.nvidia.yaml. Contains parameters for launching training and evaluating on AMD GPUs (Rocm)
-
-## Launch
-
-Download repository:
-
-```bash
-git clone https://github.com/SkyRockFly/TasteHead
-```
-
-Copy example.yaml as config.yaml:
-```bash
-cp ./config/example.yaml ./config/config.yaml
-```
-
-Copy model.yaml.example as model.yaml:
+Copy model.yaml.example to model.yaml:
 ```bash
 cp ./config/model.yaml.example ./config/model.yaml
 ```
 
-Copy .env.example as .env:
+model.yaml contains the currently selected model for evaluation. It can be changed from the UI at runtime and is saved when the program exits.
+
+Copy .env.example to .env:
 ```bash
 cp .env.example .env
 ```
@@ -98,12 +92,17 @@ Build and run:
 ```bash
 docker compose -f compose.yaml -f compose.amd.yaml up --build
 ```
+
+On the first ingest_clip run, TasteHead downloads the configured pretrained OpenCLIP weights if they are not already cached. The download may be several gigabytes and requires network access. Subsequent runs use the cached weights.
+
 ## Environment
 
 The .env file can be used to configure:
-- data directory path
-- OpenCLIP pretrained weights name or local weights path
+- Data directory path
+- OpenCLIP pretrained weights tag or local weights path
 - OpenCLIP batch size
+- Training epochs
+- Learning rate
 - Go test environment
 - PostgreSQL test database settings
 
@@ -124,32 +123,40 @@ Random weights are useful for integration tests because they exercise the real O
 
 Do not use random embeddings for real training.
 
+### Batch size
+
 ```env
 TASTEHEAD_CLIP_BATCH_SIZE=16
 ```
 
-Number of images processed in batch, depends on GPU's VRAM
+Number of images processed in one batch. Higher values require more GPU VRAM.
+
+### Data directory
 
 ```env
 TASTEHEAD_DATA_DIR=./data
 ```
 
-Path of data folder
+Path to the local data directory.
+
+### Training epochs
 
 ```env
 TASTEHEAD_EPOCHS=120
 ```
 
-Shows how many repeates will be used for training a model
+Number of epochs used to train the scoring model.
+
+### Learning rate
 
 ```env
 TASTEHEAD_LEARNING_RATE=0.001
 ```
 
-Model learning rate
+Learning rate used during model training.
 
 ## Usage
-Import local images
+### Import local images
 
 It is usually better to start training from images you already have.
 
@@ -163,14 +170,14 @@ Open the batch in the UI and score the images.
 
 Subdirectories are not processed.
 
-Supported scores:
+### Supported scores:
 - 0
 - 0.25
 - 0.5
 - 0.75
 - 1.0
 
-Score meaning
+### Score meaning
 
 Recommended interpretation:
 
