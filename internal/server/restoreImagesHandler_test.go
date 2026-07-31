@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureRestoreImages = `testdata\fixtures\restoreImages\rows.sql`
+const fixtureRestoreImages = `testdata/fixtures/restoreImages/rows.sql`
 
 func TestRestoreImagesHandler(t *testing.T) {
 	type wantReq struct {

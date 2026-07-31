@@ -13,6 +13,7 @@ import (
 	imagerowsvc "scraper/internal/service/imageRow"
 	trainingsvc "scraper/internal/service/training"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -23,10 +24,10 @@ const (
 
 var svcPaths = download.EnvPaths{
 	ModelName:           `taste_head.pt`,
-	DownloadDir:         `testdata\runtimeTest`,
-	ModelDir:            `testdata\models`,
-	ModelNameConfigPath: `testdata\config\model.yaml`,
-	ImportDir:           `testdata\import`,
+	DownloadDir:         filepath.Join("testdata", "runtimeTest"),
+	ModelDir:            filepath.Join("testdata", "models"),
+	ModelNameConfigPath: filepath.Join("testdata", "config", "model.yaml"),
+	ImportDir:           filepath.Join("testdata", "import"),
 }
 
 type toAbsStruct struct {
@@ -96,7 +97,11 @@ func TestMain(m *testing.M) {
 	svcPaths.ImportDir = absEnv.ImportDir
 	svcPaths.ModelDir = absEnv.ModelDir
 
-	scraperRepo = htmlparser.NewRepository(pyPaths)
+	scraperRepo = htmlparser.NewRepository(pyPaths, htmlparser.ScrapeConfig{
+		UserAgent:          "le docker container",
+		DownloadImagePause: time.Millisecond * 500,
+		DownloadPagePause:  time.Millisecond * 500,
+	})
 	imagerowRepo = imgrowpg.NewRepository(pool)
 	trainingRepo = trainingpg.NewRepository(pool)
 
@@ -122,7 +127,27 @@ func TestMain(m *testing.M) {
 		log.Fatalf("download.svc: %v", err)
 	}
 
+	dirs := []string{
+		filepath.Join("testdata", "runtimeTest"),
+		filepath.Join("testdata", "import"),
+		filepath.Join("testdata", "models"),
+		filepath.Join("testdata", "training"),
+	}
+
+	for _, dir := range dirs {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			log.Fatalf("mkdir %s: %v", dir, err)
+		}
+	}
+
 	code := m.Run()
+
+	for _, dir := range dirs {
+		if err := os.RemoveAll(dir); err != nil {
+			log.Fatalf("remove %s: %v", dir, err)
+		}
+	}
+
 	os.Exit(code)
 }
 

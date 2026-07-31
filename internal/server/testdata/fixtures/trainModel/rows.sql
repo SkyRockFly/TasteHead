@@ -7,9 +7,9 @@ INSERT INTO image_hash (hash) VALUES
 ON CONFLICT (hash) DO NOTHING;
 
 INSERT INTO download (batch_id, hash_id, rel_path, model_score, user_score, deleted_at) VALUES
-(1, (SELECT id FROM image_hash WHERE hash = 'F7Et5MymzC2NgC0opRmqZqIOfZ0K3QFkqbnp04O_bhI'),'lol.png',1.0,1.0,NULL),
-(1, (SELECT id FROM image_hash WHERE hash = 'lHqCclFbN95JpBXXA-pOhynlZk1sRvAGXIPHpCtyc5I'),'lol2.png',1.0,1.0,NULL),
-(1, (SELECT id FROM image_hash WHERE hash = '5lp7PE6ZTl-Hiii8c5cPJ-Y8J1R04Zpe5xvwNaI-3r4'),'lol3.png',1.0,1.0,NULL);
+(1, (SELECT id FROM image_hash WHERE hash = 'F7Et5MymzC2NgC0opRmqZqIOfZ0K3QFkqbnp04O_bhI'),'F7Et5MymzC2NgC0opRmqZqIOfZ0K3QFkqbnp04O_bhI.jpg',1.0,1.0,NULL),
+(1, (SELECT id FROM image_hash WHERE hash = 'lHqCclFbN95JpBXXA-pOhynlZk1sRvAGXIPHpCtyc5I'),'lHqCclFbN95JpBXXA-pOhynlZk1sRvAGXIPHpCtyc5I.webp',1.0,1.0,NULL),
+(1, (SELECT id FROM image_hash WHERE hash = '5lp7PE6ZTl-Hiii8c5cPJ-Y8J1R04Zpe5xvwNaI-3r4'),'5lp7PE6ZTl-Hiii8c5cPJ-Y8J1R04Zpe5xvwNaI-3r4.jpg',1.0,1.0,NULL);
 
 
 INSERT INTO tag (name) VALUES ('dataset1');

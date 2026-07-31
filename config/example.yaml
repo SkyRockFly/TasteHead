@@ -6,8 +6,14 @@ env_paths:
   training_dir: /appdata/training
   model_dir: /appdata/models
 db_config:
-  url: postgres://postgres:postgres@postgres:5432/tastehead?sslmode=disable
+  url: postgres://postgres:postgres@db-tastehead:5432/tasteheaddb?sslmode=disable
 logger:
   timestamp: "2006-01-02 15:04:05"
   formatlevel: "%-6s"
   level: debug
+server:
+  port: 8080
+scrape_config:
+  user_agent: "your-agent"
+  download_image_pause: 1200ms
+  download_page_pause: 1000ms

@@ -1,7 +1,0 @@
-{
-  "model_name": "ViT-H-14",
-  "pretrained": "laion2b_s32b_b79k",
-  "embed_dim": 1024,
-  "image_resolution": 224,      
-  "normalize": true
-}

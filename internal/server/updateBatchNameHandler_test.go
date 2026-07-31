@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureUpdateBatchName = `testdata\fixtures\updateBatchName\rows.sql`
+const fixtureUpdateBatchName = `testdata/fixtures/updateBatchName/rows.sql`
 
 func TestUpdateBatchNameHandler(t *testing.T) {
 	type wantReq struct {

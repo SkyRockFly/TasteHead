@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureHardDeleteBatches = `testdata\fixtures\hardDeleteBatches\rows.sql`
+const fixtureHardDeleteBatches = `testdata/fixtures/hardDeleteBatches/rows.sql`
 
 func TestHardDeleteBatchHandler(t *testing.T) {
 	type wantReq struct {
@@ -85,11 +85,11 @@ func TestHardDeleteBatchHandler(t *testing.T) {
 			require.NoError(t, testutil.LoadFixtures(pool, fixtureHardDeleteBatches, resetALLFixtures))
 			require.NoError(t, testutil.ClearDir(svcPaths.DownloadDir))
 			require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-				`testdata\fixtures\hardDeleteBatches\dir`,
+				`testdata/fixtures/hardDeleteBatches/dir`,
 				filepath.Join(svcPaths.DownloadDir, "dir"),
 			))
 			require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-				`testdata\fixtures\hardDeleteBatches\dir2`,
+				`testdata/fixtures/hardDeleteBatches/dir2`,
 				filepath.Join(svcPaths.DownloadDir, "dir2"),
 			))
 			req := httptest.NewRequest(method, hndURL, strings.NewReader(tt.req.body))

@@ -2,10 +2,10 @@ services:
     db-tastehead:
       image: postgres:16
       environment:
-        POSTGRES_PASSWORD: bear
+        POSTGRES_PASSWORD: ${TASTE_DB_PASSWORD:-postgres}
         POSTGRES_DB: tasteheaddb
       ports:
-        - "5432:5432"
+        - "5435:5432"
       volumes:
         - "pgdata_tastehead:/var/lib/postgresql/data"
       healthcheck:
@@ -20,11 +20,51 @@ services:
           condition: service_healthy
       volumes:
         - ./migrations:/migrations:ro
-      entrypoint: ["goose", "-dir", "/migrations", "up-to", "4"]
+      entrypoint: ["goose", "-dir", "/migrations", "up-to", "5"]
       environment:
         GOOSE_DRIVER: postgres
-        GOOSE_DBSTRING: postgres://postgres:bear@db-tastehead:5432/tasteheaddb?sslmode=disable
+        GOOSE_DBSTRING: postgres://postgres:${TASTE_DB_PASSWORD:-postgres}@db-tastehead:5432/tasteheaddb?sslmode=disable
         GOOSE_MIGRATION_DIR: /migrations
+    tastehead:
+      build:
+        context: .
+        dockerfile: cmd/Dockerfile
+        args:
+          TORCH_INDEX_URL: https://download.pytorch.org/whl/cpu
+      restart: unless-stopped
+      depends_on:
+        db-tastehead:
+          condition: service_healthy
+        migrate-tasteheaddb:
+          condition: service_completed_successfully
+      ports:
+        - "${TASTEHEAD_PORT_HOST:-8080}:8080"
+      volumes:
+        - ./config/config.yaml:/app/config/config.yaml:ro
+        - ./config/model.yaml:/app/config/model.yaml
+        - "${TASTEHEAD_DATA_DIR:-./data}/download:/appdata/download"
+        - "${TASTEHEAD_DATA_DIR:-./data}/import:/appdata/import"
+        - "${TASTEHEAD_DATA_DIR:-./data}/training:/appdata/training"
+        - "${TASTEHEAD_DATA_DIR:-./data}/models:/appdata/models"
+        - "${TASTEHEAD_DATA_DIR:-./data}/temp:/appdata/temp"
+        - "${TASTEHEAD_DATA_DIR:-./data}/cache:/appdata/cache"
+        - "${TASTEHEAD_DATA_DIR:-./data}/openclip:/appdata/openclip:ro"
+      healthcheck:
+        test: ["CMD-SHELL", "wget -qO- --spider http://localhost:8080/health || exit 1"]
+        interval: 5s
+        timeout: 3s
+        retries: 10
+      environment:
+        OPENCLIP_PRETRAINED: ${OPENCLIP_PRETRAINED:-laion2b_s32b_b79k}
+        TASTEHEAD_EPOCHS: ${TASTEHEAD_EPOCHS:-20}
+        TASTEHEAD_CLIP_BATCH_SIZE: ${TASTEHEAD_CLIP_BATCH_SIZE:-16}
+        TASTEHEAD_LEARNING_RATE: ${TASTEHEAD_LEARNING_RATE:-0.001}
+        TASTEHEAD_DEVICE: cpu
+        HF_HOME: /appdata/cache/huggingface
+        TORCH_HOME: /appdata/cache/torch
+        XDG_CACHE_HOME: /appdata/cache
+
+
       
 
 volumes:

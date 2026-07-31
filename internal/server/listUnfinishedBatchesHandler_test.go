@@ -30,15 +30,15 @@ func TestListUnfinishedBatchesHandler(t *testing.T) {
 			req: wantReq{
 				prepareDir: func(t *testing.T) {
 					t.Helper()
-					fixture := `testdata\fixtures\listUnfinishedBatches\okDir\batchWithPages`
+					fixture := `testdata/fixtures/listUnfinishedBatches/okDir/batchWithPages`
 					dest := filepath.Join(svcPaths.DownloadDir, "batchWithPages")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 
-					fixture = `testdata\fixtures\listUnfinishedBatches\okDir\okBatch`
+					fixture = `testdata/fixtures/listUnfinishedBatches/okDir/okBatch`
 					dest = filepath.Join(svcPaths.DownloadDir, "okBatch")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 
-					fixture = `testdata\fixtures\listUnfinishedBatches\okDir\unprocessedBatch`
+					fixture = `testdata/fixtures/listUnfinishedBatches/okDir/unprocessedBatch`
 					dest = filepath.Join(svcPaths.DownloadDir, "unprocessedBatch")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 				},

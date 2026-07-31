@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureRestoreBatches = `testdata\fixtures\restoreBatches\rows.sql`
+const fixtureRestoreBatches = `testdata/fixtures/restoreBatches/rows.sql`
 
 func TestRestoreBatchesHandler(t *testing.T) {
 	type wantReq struct {

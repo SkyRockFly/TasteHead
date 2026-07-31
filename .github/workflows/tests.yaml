@@ -1,0 +1,87 @@
+name: Tests
+
+on:
+  push:
+    branches: [develop]
+    paths-ignore:
+      - "README.md"
+      - "badges/**"
+      - ".badges/**"
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  go-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tastehead_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d tastehead_test"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+      
+    env:
+      OPENCLIP_PRETRAINED: none
+      TASTEHEAD_DEVICE: cpu
+      TASTEHEAD_EPOCHS: 120
+      TASTEHEAD_LEARNING_RATE: 0.001
+      TASTEHEAD_CLIP_BATCH_SIZE: 16
+      DB_URL: postgres://postgres:postgres@localhost:5432/tastehead_test?sslmode=disable
+      TASTEHEAD_SCRIPTS_DIR: ${{ github.workspace }}/py/src
+      TASTEHEAD_PYTHON_VENV_DIR: ${{ github.workspace }}/.venv
+      TASTEHEAD_MIGRATIONS_DIR: ${{ github.workspace }}/migrations
+
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare config
+        run: |
+          cp config/example.yaml config/config.yaml
+          cp config/model.yaml.example config/model.yaml
+          mkdir -p data/download data/import data/training data/models data/temp data/cache data/openclip
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Prepare Python venv
+        run: |
+          python -m venv "$TASTEHEAD_PYTHON_VENV_DIR"
+          "$TASTEHEAD_PYTHON_VENV_DIR/bin/python" -m pip install --upgrade pip
+          "$TASTEHEAD_PYTHON_VENV_DIR/bin/pip" install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          "$TASTEHEAD_PYTHON_VENV_DIR/bin/pip" install -r ./requirements.txt
+
+      - name: Install goose
+        run: |
+          go install github.com/pressly/goose/v3/cmd/goose@latest
+
+      - name: Run database migrations
+        run: |
+          goose -dir "$TASTEHEAD_MIGRATIONS_DIR" postgres "$DB_URL" up
+
+      - run: go test ./internal/server -coverprofile=coverage.out -covermode=atomic
+
+      - name: check test coverage
+        uses: vladopajic/go-test-coverage@v2
+        with:
+          profile: coverage.out
+          threshold-total: 60
+          git-token: ${{ github.ref_name == 'develop' && secrets.GITHUB_TOKEN || '' }}
+          git-branch: badges 

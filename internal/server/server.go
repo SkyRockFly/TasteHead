@@ -79,9 +79,16 @@ func StartServer(ctx context.Context, opts ServerOpts) error {
 
 	loadTrainingEndpoints(mux, opts.TrainSVC)
 
+	mux.HandleFunc("/health",
+		middlewares.LogMiddleware(
+			HealthCheckHandler()))
+
 	server := &http.Server{
-		Addr:    ":" + strconv.Itoa(opts.Port),
-		Handler: mux,
+		Addr:              ":" + strconv.Itoa(opts.Port),
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+		WriteTimeout:      1 * time.Hour,
+		IdleTimeout:       time.Minute,
 	}
 
 	errs, eCtx := errgroup.WithContext(ctx)

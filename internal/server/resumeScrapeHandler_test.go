@@ -41,7 +41,7 @@ func TestResumeScrapeHandler(t *testing.T) {
 				body: `{"batch_name":"withOneImage"}`,
 				prepareDir: func(t *testing.T) {
 					t.Helper()
-					fixture := `testdata\fixtures\resumeScrape\withOneImage`
+					fixture := `testdata/fixtures/resumeScrape/withOneImage`
 					dest := filepath.Join(svcPaths.DownloadDir, "withOneImage")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 
@@ -91,7 +91,7 @@ func TestResumeScrapeHandler(t *testing.T) {
 				body: `{"batch_name":"unprocessed"}`,
 				prepareDir: func(t *testing.T) {
 					t.Helper()
-					fixture := `testdata\fixtures\resumeScrape\unprocessed`
+					fixture := `testdata/fixtures/resumeScrape/unprocessed`
 					dest := filepath.Join(svcPaths.DownloadDir, "unprocessed")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 
@@ -121,7 +121,7 @@ func TestResumeScrapeHandler(t *testing.T) {
 				body: `{"batch_name":"cancelledDuringPageScrape"}`,
 				prepareDir: func(t *testing.T) {
 					t.Helper()
-					fixture := `testdata\fixtures\resumeScrape\cancelledDuringPageScrape`
+					fixture := `testdata/fixtures/resumeScrape/cancelledDuringPageScrape`
 					dest := filepath.Join(svcPaths.DownloadDir, "cancelledDuringPageScrape")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 
@@ -149,10 +149,10 @@ func TestResumeScrapeHandler(t *testing.T) {
 
 	localSVCPath := download.EnvPaths{
 		ModelName:           `taste_head.pt`,
-		DownloadDir:         `testdata\runtimeTest`,
-		ModelDir:            `testdata\modelsForTest`,
-		ModelNameConfigPath: `testdata\config\model.yaml`,
-		ImportDir:           `testdata\import`,
+		DownloadDir:         `testdata/runtimeTest`,
+		ModelDir:            `testdata/modelsForTest`,
+		ModelNameConfigPath: `testdata/config/model.yaml`,
+		ImportDir:           `testdata/import`,
 	}
 
 	downloadReq := download.NewServiceReq{

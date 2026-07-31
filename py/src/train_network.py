@@ -6,6 +6,7 @@ import numpy as np
 from typing import List
 import argparse
 import faulthandler
+import os
 faulthandler.enable()
 
 
@@ -16,10 +17,49 @@ Target_logits = List[List[int]]
 CLIP_PATH = Path(__file__).resolve().parent.parent / "clip"
 criterion = nn.BCEWithLogitsLoss()
 
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 32
-EPOCHS = 140
-LEARNING_RATE = 1e-3
+def resolve_device() -> str:
+    mode = os.getenv("TASTEHEAD_DEVICE", "auto").lower()
+
+    if mode == "cpu":
+        return "cpu"
+
+    if mode == "cuda":
+        if not torch.cuda.is_available():
+            raise RuntimeError("TASTEHEAD_DEVICE=cuda, but CUDA is not available")
+        return "cuda"
+
+    if mode == "auto":
+        return "cuda" if torch.cuda.is_available() else "cpu"
+
+    raise RuntimeError(f"unknown TASTEHEAD_DEVICE: {mode}")
+
+def env_int(name: str, default: int = 0) -> int:
+    raw = os.getenv(name, str(default)).strip()
+    try:
+        return int(raw)
+    except ValueError as e:
+        raise RuntimeError(f"invalid int env {name}={raw!r}") from e
+
+
+def env_float(name: str, default: float = 0.0) -> float:
+    raw = os.getenv(name, str(default)).strip()
+    try:
+        return float(raw)
+    except ValueError as e:
+        raise RuntimeError(f"invalid float env {name}={raw!r}") from e
+
+DEVICE = resolve_device()
+BATCH_SIZE = env_int("TASTEHEAD_CLIP_BATCH_SIZE")
+if BATCH_SIZE <= 0:
+    raise RuntimeError("TASTEHEAD_EPOCHS must be > 0")
+
+EPOCHS = env_int("TASTEHEAD_EPOCHS")
+if EPOCHS <= 0:
+    raise RuntimeError("TASTEHEAD_EPOCHS must be > 0")
+
+LEARNING_RATE = env_float("TASTEHEAD_LEARNING_RATE")
+if LEARNING_RATE <= 0:
+    raise RuntimeError("TASTEHEAD_LEARNING_RATE must be > 0")
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -226,6 +266,9 @@ def main():
     
     if model_path is not None:
         model_path = Path(model_path).resolve()
+        print("MODEL NAME:",model_path)
+
+    
 
     vects = np.load(vect_path)
     if learn_mode:
@@ -251,9 +294,6 @@ def main():
        levels = (sigmoids >= 0.5).sum(dim=1)
        pred_score = (levels.float() / 4.0) 
 
-    for i,score in enumerate(pred_score):
-        print(f"id:{i},score:{score: .4f}")
-
     imgs = []
     IMG_PATH = vect_path.parent.parent
     OUTPUT_CSV = IMG_PATH / "output.csv"
@@ -264,8 +304,6 @@ def main():
 
     proccesed_ids = np.load(vect_path.parent / "eval_ids_info.npy")
     scores = pred_score.detach().cpu().tolist()
-    print(len(proccesed_ids))
-    print(len(scores))
     for idx, s in zip(proccesed_ids,scores):
         row = imgs[int(idx)]
         row["model_score"] = f"{s:.2f}"

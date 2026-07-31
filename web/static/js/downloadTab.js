@@ -59,6 +59,10 @@ export class DownloadTab extends BaseTab {
       return;
     }
 
+    this.find("#load-local-batches").addEventListener("click", () => {
+      this.importLocalDirs();
+    });
+
     const tagSelects = root.querySelectorAll(".tag-select");
     if (tagSelects.length !== 0) {
       for (const tagSelect of tagSelects) {
@@ -161,6 +165,10 @@ export class DownloadTab extends BaseTab {
         this.listModels();
       },
     );
+
+    this.find('[data-action="set-model-btn"]').addEventListener("click", () => {
+      this.setModel();
+    });
 
     this.loadBatches();
     this.listTags();
@@ -365,8 +373,7 @@ export class DownloadTab extends BaseTab {
     scoreOptions.forEach((val) => {
       const opt = document.createElement("option");
       opt.value = val;
-      opt.textContent =
-        val === "" ? "— оставить как есть —" : Number(val).toFixed(2);
+      opt.textContent = val === "" ? "— no changes —" : Number(val).toFixed(2);
       select.appendChild(opt);
     });
 
@@ -638,16 +645,16 @@ export class DownloadTab extends BaseTab {
     };
 
     try {
-      core.showToast("Качаю и гоняю через CLIP/голову…", "info", 20000);
+      core.showToast("Downloading and sending to CLIP/head…", "info", 20000);
 
       const data = await api.scrapeImages(payload);
 
-      let msg = `Скачано и оценено: ${(data.images || []).length}`;
+      let msg = `Downloaded and parsed: ${(data.images || []).length}`;
       if (data.dir) {
         msg += `\ndir: ${data.dir}`;
       }
       if (data.errs && data.errs.length) {
-        msg += `\nОшибки:\n${data.errs}`;
+        msg += `\nErrors:\n${data.errs}`;
       }
       core.showToast(msg, "info", 7000);
 

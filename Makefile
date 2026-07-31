@@ -1,5 +1,5 @@
 -include .env
-# neural network section
+# Neural network section
 
 .PHONY: all manage-files model-computing clip-ingest model-training
 
@@ -64,6 +64,10 @@ taste-test: taste-db-up taste-migrate
 	@DB_URL="$(TASTE_DB_URL)"  \
 	TASTEHEAD_SCRIPTS_DIR="$(TASTEHEAD_SCRIPTS_DIR)" \
 	TASTEHEAD_PYTHON_VENV_DIR="$(TASTEHEAD_PYTHON_VENV_DIR)" \
+	OPENCLIP_PRETRAINED="$(TEST_OPENCLIP_PRETRAINED)" \
+	TASTEHEAD_EPOCHS="$(TASTEHEAD_EPOCHS)" \
+	TASTEHEAD_LEARNING_RATE="$(TASTEHEAD_LEARNING_RATE)" \
+	TASTEHEAD_CLIP_BATCH_SIZE="$(TASTEHEAD_CLIP_BATCH_SIZE)" \
 	go test $(GO_TEST_TASTE_FLAGS)
 	@$(MAKE) taste-db-down
 

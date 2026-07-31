@@ -27,7 +27,7 @@ func TestListTagsHandler(t *testing.T) {
 		{
 			name: "#01_OK",
 			req: wantReq{
-				fixture: `testdata\fixtures\listTags\finishedTags.sql`,
+				fixture: `testdata/fixtures/listTags/finishedTags.sql`,
 			},
 			want: wantResp{
 				code: http.StatusOK,
@@ -39,7 +39,7 @@ func TestListTagsHandler(t *testing.T) {
 		{
 			name: "#02_NO_DELETEG_TAGS",
 			req: wantReq{
-				fixture: `testdata\fixtures\listTags\deletedTags.sql`,
+				fixture: `testdata/fixtures/listTags/deletedTags.sql`,
 			},
 			want: wantResp{
 				code: http.StatusOK,

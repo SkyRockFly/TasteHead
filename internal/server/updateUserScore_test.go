@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	fixtureUpdateUserScore = `testdata\fixtures\updateUserScore\rows.sql`
+	fixtureUpdateUserScore = `testdata/fixtures/updateUserScore/rows.sql`
 )
 
 func TestUpdateUserScoreHandler(t *testing.T) {

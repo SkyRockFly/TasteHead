@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const fixtureCreateBatch = `testdata\fixtures\createBatch\rows.sql`
+const fixtureCreateBatch = `testdata/fixtures/createBatch/rows.sql`
 
 func TestCreateBatchHandler(t *testing.T) {
 	type wantReq struct {

@@ -63,7 +63,7 @@ func TestGetImageHandler(t *testing.T) {
 
 	testDir := filepath.Join(svcPaths.DownloadDir, "_testBatch")
 	require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-		`testdata\fixtures\getImagesTest\images`,
+		`testdata/fixtures/getImagesTest/images`,
 		testDir,
 	))
 

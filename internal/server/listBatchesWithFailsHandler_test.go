@@ -30,11 +30,11 @@ func TestListBatchesWithFailsHandler(t *testing.T) {
 			req: wantReq{
 				prepareDir: func(t *testing.T) {
 					t.Helper()
-					fixture := `testdata\fixtures\listBatchesWithFails\okDir\batchWithFails`
+					fixture := `testdata/fixtures/listBatchesWithFails/okDir/batchWithFails`
 					dest := filepath.Join(svcPaths.DownloadDir, "batchWithFails")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 
-					fixture = `testdata\fixtures\listBatchesWithFails\okDir\okBatch`
+					fixture = `testdata/fixtures/listBatchesWithFails/okDir/okBatch`
 					dest = filepath.Join(svcPaths.DownloadDir, "okBatch")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 				},
@@ -59,7 +59,7 @@ func TestListBatchesWithFailsHandler(t *testing.T) {
 			req: wantReq{
 				prepareDir: func(t *testing.T) {
 					t.Helper()
-					fixture := `testdata\fixtures\listBatchesWithFails\batchWithFailedState`
+					fixture := `testdata/fixtures/listBatchesWithFails/batchWithFailedState`
 					dest := filepath.Join(svcPaths.DownloadDir, "batchWithFailedState")
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(fixture, dest))
 				},

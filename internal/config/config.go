@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"scraper/internal/pkg/kit"
 	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog"
@@ -13,9 +14,15 @@ import (
 )
 
 type AppConfig struct {
-	Log LoggerConfig `yaml:"logger" validate:"required"`
-	Env EnvConfig    `yaml:"env_paths" validate:"required"`
-	DB  DBConfig     `yaml:"db_config" validate:"required"`
+	Log    LoggerConfig `yaml:"logger" validate:"required"`
+	Env    EnvConfig    `yaml:"env_paths" validate:"required"`
+	DB     DBConfig     `yaml:"db_config" validate:"required"`
+	Server ServerConfig `yaml:"server" validate:"required"`
+	Scrape ScrapeConfig `yaml:"scrape_config" validate:"required"`
+}
+
+type ServerConfig struct {
+	Port int `yaml:"port" validate:"min=1,max=65535"`
 }
 
 type EnvConfig struct {
@@ -31,6 +38,12 @@ type LoggerConfig struct {
 	Timestamp   string `yaml:"timestamp" validate:"required,timestamp"`
 	FormatLevel string `yaml:"formatlevel" validate:"required,formatlevel"`
 	Level       string `yaml:"level" validate:"required,loglevel"`
+}
+
+type ScrapeConfig struct {
+	UserAgent          string        `yaml:"user_agent" validate:"required"`
+	DownloadImagePause time.Duration `yaml:"download_image_pause" validate:"gt=0s"`
+	DownloadPagePause  time.Duration `yaml:"download_page_pause" validate:"gt=0s"`
 }
 
 type DBConfig struct {
@@ -95,6 +108,10 @@ func GetAppConfig() (*AppConfig, error) {
 
 	if err := makeAbs(&appConfig.Env); err != nil {
 		return nil, fmt.Errorf("abs envConfig: %w", err)
+	}
+
+	if err := ensureRuntimeDirs(&appConfig.Env); err != nil {
+		return nil, fmt.Errorf("ensure runtime dirs: %w", err)
 	}
 
 	if err := validatePathLayout(&appConfig.Env); err != nil {
@@ -219,4 +236,25 @@ func pathInsideOrSame(parent, child string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func ensureRuntimeDirs(env *EnvConfig) error {
+	dirs := []string{
+		env.DownloadDir,
+		env.ImportDir,
+		env.TrainingDir,
+		env.ModelDir,
+	}
+
+	for _, dir := range dirs {
+		if strings.TrimSpace(dir) == "" {
+			return fmt.Errorf("runtime dir is empty")
+		}
+
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("mkdir %s: %w", dir, err)
+		}
+	}
+
+	return nil
 }

@@ -137,17 +137,17 @@ func TestScrapeImagesHandler(t *testing.T) {
 
 	localSVCPath := download.EnvPaths{
 		ModelName:           `taste_head.pt`,
-		DownloadDir:         `testdata\runtimeTest`,
-		ModelDir:            `testdata\modelsForTest`,
-		ModelNameConfigPath: `testdata\config\model.yaml`,
-		ImportDir:           `testdata\import`,
+		DownloadDir:         `testdata/runtimeTest`,
+		ModelDir:            `testdata/modelsForTest`,
+		ModelNameConfigPath: `testdata/config/model.yaml`,
+		ImportDir:           `testdata/import`,
 	}
 
 	method := http.MethodPost
 	hndURL := "/scrape"
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require.NoError(t, testutil.ClearDir(`E:\AI\Embeddings Default City\ScraperSet\internal\server\testdata\runtimeTest`))
+			require.NoError(t, testutil.ClearDir(localSVCPath.DownloadDir))
 			require.NoError(t, testutil.ClearFixtures(pool, resetALLFixtures))
 			repo := &wrappedScraperRepo{
 				Repository:       scraperRepo,
@@ -200,13 +200,13 @@ func readStates(t *testing.T, downloadDir string) *scrapestate.StateManifest {
 func launchTestServer(t *testing.T) *httptest.Server {
 	t.Helper()
 
-	img1, err := os.ReadFile(`testdata\fixtures\scrapeImages\image.jpg`)
+	img1, err := os.ReadFile(`testdata/fixtures/scrapeImages/image.jpg`)
 	require.NoError(t, err)
 
-	img2, err := os.ReadFile(`testdata\fixtures\scrapeImages\image2.webp`)
+	img2, err := os.ReadFile(`testdata/fixtures/scrapeImages/image2.webp`)
 	require.NoError(t, err)
 
-	img3, err := os.ReadFile(`testdata\fixtures\scrapeImages\image3.jpg`)
+	img3, err := os.ReadFile(`testdata/fixtures/scrapeImages/image3.jpg`)
 	require.NoError(t, err)
 	var srv *httptest.Server
 	srv = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

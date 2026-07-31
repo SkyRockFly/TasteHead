@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	fixtureTrainModel = `testdata\fixtures\trainModel\rows.sql`
+	fixtureTrainModel = `testdata/fixtures/trainModel/rows.sql`
 )
 
 func TestTrainModelHandler(t *testing.T) {
@@ -91,7 +91,7 @@ func TestTrainModelHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require.NoError(t, testutil.ClearDir(svcPaths.DownloadDir))
 			require.NoError(t, testutil.LoadFixtures(pool, fixtureTrainModel, resetALLFixtures))
-			require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(`testdata\fixtures\trainModel\images`,
+			require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(`testdata/fixtures/trainModel/images`,
 				filepath.Join(svcPaths.DownloadDir, "batch")))
 
 			req := httptest.NewRequest(method, hndURL, strings.NewReader(tt.req.body))

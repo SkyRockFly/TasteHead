@@ -51,7 +51,13 @@ func main() {
 		log.Fatal().Err(fmt.Errorf("initDB: %w", err)).Msg("main")
 	}
 
-	scraperRepo := htmlparser.NewRepository(pyPaths)
+	scrapeCFG := htmlparser.ScrapeConfig{
+		UserAgent:          appConfig.Scrape.UserAgent,
+		DownloadImagePause: appConfig.Scrape.DownloadImagePause,
+		DownloadPagePause:  appConfig.Scrape.DownloadPagePause,
+	}
+
+	scraperRepo := htmlparser.NewRepository(pyPaths, scrapeCFG)
 	imagerowRepo := imgrowpg.NewRepository(pool)
 	trainingrepo := trainingpg.NewRepository(pool)
 
@@ -78,7 +84,7 @@ func main() {
 	}
 
 	opts := server.ServerOpts{
-		Port:      5860,
+		Port:      appConfig.Server.Port,
 		ScrapeSVC: downloadSVC,
 		TrainSVC:  trainingService,
 		ImageSVC:  imgRowService,

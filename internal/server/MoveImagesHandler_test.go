@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const moveImagesFixture = `testdata\fixtures\moveFilesTest\rows.sql`
+const moveImagesFixture = `testdata/fixtures/moveFilesTest/rows.sql`
 
 func TestMoveImagesHandler(t *testing.T) {
 	type wantReq struct {
@@ -89,11 +89,11 @@ func TestMoveImagesHandler(t *testing.T) {
 			require.NoError(t, testutil.LoadFixtures(pool, moveImagesFixture, resetALLFixtures))
 			require.NoError(t, testutil.ClearDir(svcPaths.DownloadDir))
 			require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-				`testdata\fixtures\moveFilesTest\dir1`,
+				`testdata/fixtures/moveFilesTest/dir1`,
 				filepath.Join(svcPaths.DownloadDir, "dir1"),
 			))
 			require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-				`testdata\fixtures\moveFilesTest\dir2`,
+				`testdata/fixtures/moveFilesTest/dir2`,
 				filepath.Join(svcPaths.DownloadDir, "dir2"),
 			))
 			req := httptest.NewRequest(method, hndURL, strings.NewReader(tt.req.body))

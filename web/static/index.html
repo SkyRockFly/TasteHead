@@ -9,7 +9,7 @@
     <header>
       <div>
         <h1>Taste Head Labeler</h1>
-        <small>Медвежий желудок крутит картинки, а ты просто кликаешь.</small>
+        <small>The bear digests the images. You just keep clicking.</small>
       </div>
     </header>
 
@@ -20,7 +20,7 @@
     </div>
 
     <section class="tab-panel" id="tab-download">
-      <!-- Левая панель: управление -->
+      <!-- Left panel: control -->
       <div class="layout-root">
         <aside class="panel">
           <div class="panel-section">
@@ -32,25 +32,25 @@
               placeholder="https://your.site/posts?page=11"
             />
 
-            <label>CSS селектор постов</label>
+            <label>CSS post selector</label>
             <input id="dl-post-selector" type="text" value="article" />
 
-            <label>Атрибут с full-image URL</label>
+            <label>Attribute with full-image URL</label>
             <input id="dl-image-attr" type="text" value="data-file-url" />
 
-            <label>CSS селектор ссылки 'next page'</label>
+            <label>CSS url 'next page' selector</label>
             <input
               id="dl-next-selector"
               type="text"
               value="a[id*='paginator-next']"
             />
 
-            <label>Атрибут для next href</label>
+            <label>Attribute for 'next' href</label>
             <input id="dl-next-attr" type="text" value="href" />
 
             <div class="row">
               <div>
-                <label>Страниц подряд</label>
+                <label>Pages</label>
                 <input id="dl-pages" type="number" min="1" max="50" value="1" />
               </div>
               <div>
@@ -156,9 +156,6 @@
             <button id="reset-local-btn" class="danger">
               Reset all changes
             </button>
-            <div class="hint">
-              Оценки идут в <code>/scores/update</code> пачкой по hash.
-            </div>
             <div id="save-status" class="status"></div>
             <span>Mass Scoring</span>
             <select id="mass-score-select">
@@ -172,9 +169,9 @@
           </div>
 
           <div class="panel-section">
-            <h2>4. Утилиты</h2>
+            <h2>4. Utility</h2>
             <button id="load-local-batches" class="primary">
-              Добавить существующие папки в корне
+              Add folders from 'import'path
             </button>
             <span>Models:</span>
             <select data-action="list-models"></select>
@@ -185,10 +182,13 @@
             >
               ⟲
             </button>
+            <button data-action="set-model-btn" class="primary">
+              Set Model
+            </button>
           </div>
         </aside>
 
-        <!-- Правая часть: грид -->
+        <!-- Right panel: grid -->
         <section class="grid-wrapper">
           <div class="toolbar">
             <div class="toolbar-left">
@@ -213,7 +213,7 @@
               <span id="pending-counter">Scores changed: 0</span>
             </div>
             <div class="toolbar-center">
-              <label for="tag-select">Тэг:</label>
+              <label for="tag-select">Tag:</label>
               <select
                 class="tag-select"
                 data-allow-new="true"
@@ -229,7 +229,7 @@
           </div>
 
           <div id="grid-download" class="grid">
-            <!-- сюда падают карточки картинок -->
+            <!-- Place for grid cards -->
           </div>
         </section>
       </div>
@@ -239,17 +239,17 @@
       <div class="layout-root">
         <aside class="panel">
           <div class="panel-section">
-            <h2>1. Навигация по папке</h2>
-            <label for="score-source">Источник оценки:</label>
+            <h2>1. Batch navigation</h2>
+            <label for="score-source">Score source:</label>
 
             <select id="score-source">
-              <option value="model">Модель</option>
-              <option value="user">Пользователь</option>
+              <option value="model">Model</option>
+              <option value="user">User</option>
             </select>
 
-            <label for="score-filter">Фильтр:</label>
+            <label for="score-filter">Score filter:</label>
             <select id="score-filter">
-              <option value="">Все</option>
+              <option value="">All</option>
               <option value="0">0.00</option>
               <option value="0.25">0.25</option>
               <option value="0.5">0.50</option>
@@ -258,7 +258,7 @@
             </select>
             <div class="row" style="margin-top: 4px">
               <div>
-                <label>Лимит на страницу</label>
+                <label>Limit per page</label>
                 <input
                   id="page-limit"
                   type="number"
@@ -267,31 +267,21 @@
                   value="24"
                 />
               </div>
-              <div>
-                <label>Текущий курсор</label>
-                <input id="cursor-input" type="number" min="0" value="0" />
-              </div>
             </div>
 
             <div class="row" style="margin-top: 6px">
-              <button id="load-btn" class="primary">Загрузить страницу</button>
-              <button id="prev-btn">← Назад</button>
-              <button id="next-btn">Вперёд →</button>
+              <button id="load-btn" class="primary">Load Page</button>
+              <button id="prev-btn">← Previous</button>
+              <button id="next-btn">Next →</button>
             </div>
           </div>
 
           <div class="panel-section">
-            <h2>2. Сохранить оценки</h2>
-            <button id="save-all-btn" class="primary">
-              Сохранить все изменённые
-            </button>
+            <h2>2. Save Scores</h2>
+            <button id="save-all-btn" class="primary">Save all changed</button>
             <button id="reset-local-btn" class="danger">
-              Сбросить локальные изменения
+              Reset all changed
             </button>
-            <div class="hint">
-              Оценки идут в <code>/scores/update</code> пачкой по hash.
-            </div>
-
             <div id="save-status" class="status"></div>
           </div>
 
@@ -301,7 +291,7 @@
               Train model
             </button>
             <input placeholder="model name" data-action="model-name-input" />
-            <label for="tag-select">Тег:</label>
+            <label for="tag-select">Tag:</label>
             <select
               class="tag-select"
               data-allow-new="false"
@@ -326,6 +316,9 @@
                 data-action="list-tags"
               ></select>
               <button id="delete-tag-btn" class="primary">Delete Tag</button>
+              <button data-action="remove-training-rows-btn">
+                Remove From Dataset
+              </button>
               <button id="send-training-btn" class="primary">
                 Send to Dataset
               </button>
@@ -339,9 +332,8 @@
               <span id="pending-counter">Scores changed: 0</span>
             </div>
             <div class="toolbar-center">
-              <span id="toolbar-right">Нет данных</span>
               <span class="spacer"></span>
-              <span id="pending-counter">Изменений в оценке: 0</span>
+              <span id="pending-counter">Scores changed: 0</span>
             </div>
             <span data-class="score-composition"></span>
             <button id="score-composition-btn" class="primary">
@@ -350,7 +342,7 @@
           </div>
 
           <div id="grid-training" class="grid">
-            <!-- сюда падают карточки картинок -->
+            <!-- Place for images' cards -->
           </div>
         </section>
       </div>
@@ -360,16 +352,16 @@
       <div class="layout-root">
         <aside class="panel">
           <div class="panel-section">
-            <h2>1. Навигация по папке</h2>
-            <label for="score-source">Источник оценки:</label>
+            <h2>1. Batch navigation</h2>
+            <label for="score-source">Score source:</label>
 
             <select id="score-source">
-              <option value="model">Модель</option>
-              <option value="user">Пользователь</option>
+              <option value="model">Model</option>
+              <option value="user">User</option>
             </select>
             <div class="row" style="margin-top: 4px">
               <div>
-                <label>Лимит на страницу</label>
+                <label>Limit per page</label>
                 <input
                   id="page-limit"
                   type="number"
@@ -381,9 +373,9 @@
             </div>
 
             <div class="row" style="margin-top: 6px">
-              <button id="load-btn" class="primary">Загрузить страницу</button>
-              <button id="prev-btn">← Назад</button>
-              <button id="next-btn">Вперёд →</button>
+              <button id="load-btn" class="primary">Load Page</button>
+              <button id="prev-btn">← Previous</button>
+              <button id="next-btn">Next →</button>
             </div>
           </div>
 
@@ -405,13 +397,13 @@
           </div>
 
           <div id="grid-deleted" class="grid">
-            <!-- сюда падают карточки картинок -->
+            <!-- Place for images' grid -->
           </div>
         </section>
       </div>
     </section>
 
-    <!-- Модалка для full-size -->
+    <!-- Modal for full-size -->
     <div id="modal-backdrop" class="modal-backdrop">
       <div class="modal" , id="modal">
         <div class="modal-header">

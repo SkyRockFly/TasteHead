@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	fixtureRemoveTag = `testdata\fixtures\removeTag\rows.sql`
+	fixtureRemoveTag = `testdata/fixtures/removeTag/rows.sql`
 )
 
 func TestRemoveTagHandler(t *testing.T) {

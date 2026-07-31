@@ -41,7 +41,7 @@
       }
     }
 
-    /* Панель слева */
+    /* Left panel */
     .panel {
       background: #0c0c14;
       border-radius: 10px;
@@ -122,7 +122,7 @@
       white-space: pre-line;
     }
 
-    /* Правая часть – грид */
+    /* Right panel - grid */
     .grid-wrapper {
       display: flex;
       flex-direction: column;
@@ -247,7 +247,7 @@
       font-size: 12px;
     }
 
-    /* Модалка */
+    /* Modal */
     .modal-backdrop {
       position: fixed;
       inset: 0;

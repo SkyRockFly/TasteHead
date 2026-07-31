@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -19,7 +20,7 @@ import (
 )
 
 const (
-	fixtureImportLocalDirs = `testdata\fixtures\importLocalDirs\rows.sql`
+	fixtureImportLocalDirs = `testdata/fixtures/importLocalDirs/rows.sql`
 )
 
 var ValidExts = []string{".jpg", ".png", ".jpeg", ".webp"}
@@ -71,13 +72,15 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#01_OK",
 			req: wantReq{
-				path:        `testdata\fixtures\importLocalDirs\okDir`,
+				path:        `testdata/fixtures/importLocalDirs/okDir`,
 				failCopyAt:  0,
 				failProcess: false,
 			},
 			want: wantResp{
-				code:                 http.StatusOK,
-				body:                 `{"fails":null}`,
+				code: http.StatusOK,
+				body: mustJSON(map[string]any{
+					"fails": nil,
+				}),
 				expectedFilesInBatch: 2,
 				expectedFilesInDir:   2,
 				batchID:              3,
@@ -87,15 +90,21 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#02_OK_NO_UNIQUE",
 			req: wantReq{
-				path:        `testdata\fixtures\importLocalDirs\okDirNoUnique`,
+				path:        `testdata/fixtures/importLocalDirs/okDirNoUnique`,
 				failCopyAt:  0,
 				failProcess: false,
 			},
 			want: wantResp{
 				code: http.StatusOK,
-				body: `{"fails":[{
-"Path":"testdata\\import\\okDirNoUnique", 
-"Warn":"No unique files in dir"}]}`,
+				body: mustJSON(map[string]any{
+					"fails": []any{
+						map[string]any{
+							"Path": slashPath("testdata", "import", "okDirNoUnique"),
+							"Warn": "No unique files in dir",
+						},
+					},
+				},
+				),
 			},
 		},
 		{
@@ -130,26 +139,32 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#05_ENTRY_EXIST_WITHOUT_DIR",
 			req: wantReq{
-				path:        `testdata\fixtures\importLocalDirs\entryExistWithoutDir`,
+				path:        `testdata/fixtures/importLocalDirs/entryExistWithoutDir`,
 				failCopyAt:  0,
 				failProcess: false,
 			},
 			want: wantResp{
 				code: http.StatusOK,
-				body: `{"fails":[{
-"Path":"testdata\\import\\entryExistWithoutDir", 
-"Warn":"Entry exists while dir is not"}]}`,
+				body: mustJSON(map[string]any{
+					"fails": []any{
+						map[string]any{
+							"Path": slashPath("testdata", "import", "entryExistWithoutDir"),
+							"Warn": "Entry exists while dir is not",
+						},
+					},
+				},
+				),
 			},
 		},
 		{
 			name: "#06_DIR_EXIST_WITHOUT_ENTRY",
 			req: wantReq{
-				path:       `testdata\fixtures\importLocalDirs\dirExistWithoutEntry`,
+				path:       `testdata/fixtures/importLocalDirs/dirExistWithoutEntry`,
 				failCopyAt: 0,
 				prepareDir: func(t *testing.T) {
 					t.Helper()
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-						`testdata\fixtures\importLocalDirs\dirExistWithoutEntry`,
+						`testdata/fixtures/importLocalDirs/dirExistWithoutEntry`,
 						filepath.Join(svcPaths.DownloadDir, "dirExistWithoutEntry"),
 					))
 				},
@@ -157,9 +172,15 @@ func TestImportLocalDirsHandler(t *testing.T) {
 			},
 			want: wantResp{
 				code: http.StatusOK,
-				body: `{"fails":[{
-"Path":"testdata\\import\\dirExistWithoutEntry", 
-"Warn":"Dir exists while entry is not"}]}`,
+				body: mustJSON(map[string]any{
+					"fails": []any{
+						map[string]any{
+							"Path": slashPath("testdata", "import", "dirExistWithoutEntry"),
+							"Warn": "Dir exists while entry is not",
+						},
+					},
+				},
+				),
 				expectedFilesInBatch: 0,
 				expectedFilesInDir:   4,
 				batchID:              0,
@@ -169,20 +190,22 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#07_UPDATE_DIR",
 			req: wantReq{
-				path:       `testdata\fixtures\importLocalDirs\update\updateDir`,
+				path:       `testdata/fixtures/importLocalDirs/update/updateDir`,
 				failCopyAt: 0,
 				prepareDir: func(t *testing.T) {
 					t.Helper()
 					require.NoError(t, testutil.CreateTempDirFromPicFixtureDir(
-						`testdata\fixtures\importLocalDirs\update\currentDir`,
+						`testdata/fixtures/importLocalDirs/update/currentDir`,
 						filepath.Join(svcPaths.DownloadDir, "updateDir"),
 					))
 				},
 				failProcess: false,
 			},
 			want: wantResp{
-				code:                 http.StatusOK,
-				body:                 `{"fails":null}`,
+				code: http.StatusOK,
+				body: mustJSON(map[string]any{
+					"fails": nil,
+				}),
 				expectedFilesInBatch: 4,
 				expectedFilesInDir:   4,
 				batchID:              1,
@@ -192,15 +215,22 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#08_COPY_ERROR",
 			req: wantReq{
-				path:        `testdata\fixtures\importLocalDirs\copyError`,
+				path:        `testdata/fixtures/importLocalDirs/copyError`,
 				failCopyAt:  2,
 				failProcess: false,
 			},
 			want: wantResp{
 				code: http.StatusOK,
-				body: `{"fails":[{
-"Path":"testdata\\import\\copyError",
-"Warn":"Copy file error"}]}`,
+				body: mustJSON(map[string]any{
+					"fails": []any{
+						map[string]any{
+							"Path": slashPath("testdata", "import", "copyError"),
+							"Warn": "Copy file error",
+						},
+					},
+				},
+				),
+
 				expectedFilesInBatch: 0,
 				expectedFilesInDir:   0,
 				batchID:              0,
@@ -210,16 +240,21 @@ func TestImportLocalDirsHandler(t *testing.T) {
 		{
 			name: "#09_PROCESS_ERROR",
 			req: wantReq{
-				path:        `testdata\fixtures\importLocalDirs\copyError`,
+				path:        `testdata/fixtures/importLocalDirs/copyError`,
 				failCopyAt:  0,
 				failProcess: true,
 			},
 			want: wantResp{
 				code: http.StatusOK,
-				body: `{"fails":[{
-"Path":"testdata\\import\\copyError",
-"Warn":"Process files error"}
-				]}`,
+				body: mustJSON(map[string]any{
+					"fails": []any{
+						map[string]any{
+							"Path": slashPath("testdata", "import", "copyError"),
+							"Warn": "Process files error",
+						},
+					},
+				},
+				),
 				expectedFilesInBatch: 0,
 				expectedFilesInDir:   0,
 				batchID:              0,
@@ -230,10 +265,10 @@ func TestImportLocalDirsHandler(t *testing.T) {
 
 	localSVCPath := download.EnvPaths{
 		ModelName:           `taste_head.pt`,
-		DownloadDir:         `testdata\runtimeTest`,
-		ModelDir:            `testdata\modelsForTest`,
-		ModelNameConfigPath: `testdata\config\model.yaml`,
-		ImportDir:           `testdata\import`,
+		DownloadDir:         `testdata/runtimeTest`,
+		ModelDir:            `testdata/modelsForTest`,
+		ModelNameConfigPath: `testdata/config/model.yaml`,
+		ImportDir:           `testdata/import`,
 	}
 
 	method := http.MethodGet
@@ -339,4 +374,16 @@ func prepareDirFromFixture(t *testing.T, path string) {
 	dirName := filepath.Base(path)
 	err := testutil.CreateTempDirFromPicFixtureDir(path, filepath.Join(svcPaths.ImportDir, dirName))
 	require.NoError(t, err)
+}
+
+func mustJSON(v any) string {
+	b, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
+	}
+	return string(b)
+}
+
+func slashPath(parts ...string) string {
+	return filepath.ToSlash(filepath.Join(parts...))
 }

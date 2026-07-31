@@ -17,15 +17,15 @@ export class TrainingTab extends BaseTab {
 
   async init() {
     this.find("#load-btn").addEventListener("click", () =>
-      this.loadTrainingPage(true, true),
+      this.loadTrainingPage(true, true, false),
     );
 
     this.find("#next-btn").addEventListener("click", () =>
-      this.nextPage(() => this.loadTrainingPage(false, true)),
+      this.nextPage(() => this.loadTrainingPage(false, true, false)),
     );
 
     this.find("#prev-btn").addEventListener("click", () =>
-      this.prevPage(() => this.loadTrainingPage(false, false)),
+      this.prevPage(() => this.loadTrainingPage(false, false, false)),
     );
 
     this.find("#save-all-btn").addEventListener("click", () => {
@@ -47,6 +47,13 @@ export class TrainingTab extends BaseTab {
       this.state.selectedIDs.clear();
       this.renderGrid((img) => this.makeCard(img));
     });
+
+    this.find('[data-action="remove-training-rows-btn"]').addEventListener(
+      "click",
+      () => {
+        this.removeTrainingRows();
+      },
+    );
 
     const root = this.getRoot();
     if (!root) {
@@ -84,7 +91,7 @@ export class TrainingTab extends BaseTab {
     this.loadBatchesIntoState();
   }
 
-  buildPayload(resetCursor, next) {
+  buildPayload(resetCursor, next, refresh) {
     const tagIDInput = this.find('[data-action="list-tags"]');
     const limitInput = this.find("#page-limit");
     const scoreInput = this.find("#score-filter");
@@ -92,10 +99,14 @@ export class TrainingTab extends BaseTab {
     this.state.limit = core.readInt(limitInput, 24);
     let cursor = 0;
     if (!resetCursor) {
-      if (next) {
-        cursor = this.state.cursor_next;
+      if (!refresh) {
+        if (next) {
+          cursor = this.state.cursor_next;
+        } else {
+          cursor = this.state.cursor_prev;
+        }
       } else {
-        cursor = this.state.cursor_prev;
+        cursor = this.state.cursor_prev - 1;
       }
     }
 
@@ -115,24 +126,24 @@ export class TrainingTab extends BaseTab {
     core.showToast("Local changes were reset");
   }
 
-  async loadTrainingPage(resetCursor, next) {
+  async loadTrainingPage(resetCursor, next, refresh) {
     const hasMore = await this.loadPage(
       resetCursor,
       (payload) => api.listTrainingRows(payload),
       (img) => this.makeCard(img),
-      (reset) => this.buildPayload(reset, next),
+      (reset) => this.buildPayload(reset, next, refresh),
     );
     this.updateHasMore(next, hasMore);
   }
 
   nextPage() {
     if (!this.canGoNext()) return;
-    this.loadTrainingPage(false, true);
+    this.loadTrainingPage(false, true, false);
   }
 
   prevPage() {
     if (!this.canGoPrev()) return;
-    this.loadTrainingPage(false, false);
+    this.loadTrainingPage(false, false, false);
   }
 
   updateHasMore(next, data_has_more) {
@@ -226,8 +237,7 @@ export class TrainingTab extends BaseTab {
     scoreOptions.forEach((val) => {
       const opt = document.createElement("option");
       opt.value = val;
-      opt.textContent =
-        val === "" ? "— оставить как есть —" : Number(val).toFixed(2);
+      opt.textContent = val === "" ? "— no change —" : Number(val).toFixed(2);
       select.appendChild(opt);
     });
 
@@ -262,6 +272,32 @@ export class TrainingTab extends BaseTab {
     card.appendChild(selWrap);
 
     return card;
+  }
+
+  async removeTrainingRows() {
+    if (this.state.selectedIDs.size === 0) {
+      core.showToast("No selected", "error");
+      return;
+    }
+
+    const ids = Array.from(this.state.selectedIDs);
+
+    try {
+      const data = await api.removeTrainingRow({ ids });
+
+      if (!data.accepted) {
+        core.showToast("Not accepted", "error");
+        return;
+      }
+
+      core.showToast("Accepted");
+
+      this.state.selectedIDs.clear();
+      this.loadTrainingPage(false, false, true);
+    } catch (err) {
+      core.showToast(`Error: ${err}`, "error");
+      return;
+    }
   }
 
   toggleSelection(id) {

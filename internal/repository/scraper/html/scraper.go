@@ -1,6 +1,7 @@
 package htmlparser
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/base64"
@@ -14,12 +15,14 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"scraper/internal/pkg/apperror"
 	"scraper/internal/repository/scraper"
 	scrapestate "scraper/internal/scrapeState"
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -29,7 +32,13 @@ import (
 
 type Row map[string]string
 
-var validExts = []string{".jpg", ".png", ".jpeg", ".webp"}
+var validExts = []string{".jpg", ".png", ".jpeg", ".webp", ".gif"}
+
+type ScrapeConfig struct {
+	UserAgent          string
+	DownloadImagePause time.Duration
+	DownloadPagePause  time.Duration
+}
 
 type EnvPaths struct {
 	PythonVenvDir string
@@ -39,21 +48,23 @@ type EnvPaths struct {
 type Repository struct {
 	client *http.Client
 	paths  EnvPaths
+	cfg    ScrapeConfig
 }
 
 type HeaderRow map[string]string
 
-func NewRepository(paths EnvPaths) *Repository {
+func NewRepository(paths EnvPaths, cfg ScrapeConfig) *Repository {
 	return &Repository{
 		paths: paths,
 		client: &http.Client{
 			Timeout: 60 * time.Second,
 		},
+		cfg: cfg,
 	}
 }
 
 func (r *Repository) ParseHTML(req scraper.ParseReq) (scraper.ParseResp, error) {
-	httpResp, err := sendGetRequest(req.URL, r.client)
+	httpResp, err := r.sendGetRequest(req.URL)
 	if err != nil {
 		return scraper.ParseResp{}, fmt.Errorf("send request: %w", err)
 	}
@@ -82,6 +93,8 @@ func (r *Repository) ParseHTML(req scraper.ParseReq) (scraper.ParseResp, error) 
 		URL:     urls,
 		NextURL: nextURL,
 	}
+
+	time.Sleep(r.cfg.DownloadPagePause)
 	return resp, nil
 }
 
@@ -102,7 +115,7 @@ func (r *Repository) DownloadPic(downloadPath string, url string) *scraper.Faile
 		return &fail
 	}
 
-	resp, err := sendGetRequest(url, r.client)
+	resp, err := r.sendGetRequest(url)
 	if err != nil {
 		fail := handleDownloadError(url, "sendGetRequest", err, apperror.IssueGetRequestError, true)
 		return &fail
@@ -113,6 +126,8 @@ func (r *Repository) DownloadPic(downloadPath string, url string) *scraper.Faile
 		fail := handleDownloadError(url, "sendGetRequest", err, apperror.IssueCreatePic, true)
 		return &fail
 	}
+
+	time.Sleep(r.cfg.DownloadImagePause)
 
 	return nil
 }
@@ -216,7 +231,10 @@ func (r *Repository) MoveDir(src, dest string) error {
 }
 
 func (r *Repository) TrainModel(ctx context.Context, req scraper.TrainModelReq) error {
-	venv := filepath.Join(r.paths.PythonVenvDir, "Scripts", "python.exe")
+	venv, err := makeVenvPath(r.paths.PythonVenvDir)
+	if err != nil {
+		return fmt.Errorf("venv path: %w", err)
+	}
 	scriptName := filepath.Join(r.paths.ScriptsDir, "ingest_clip.py")
 
 	cmdArgs := []string{
@@ -248,7 +266,10 @@ func (r *Repository) TrainModel(ctx context.Context, req scraper.TrainModelReq) 
 }
 
 func (r *Repository) ProcessFiles(ctx context.Context, req scraper.ProcessFilesReq) error {
-	venv := filepath.Join(r.paths.PythonVenvDir, "Scripts", "python.exe")
+	venv, err := makeVenvPath(r.paths.PythonVenvDir)
+	if err != nil {
+		return fmt.Errorf("venv path: %w", err)
+	}
 	scriptName := filepath.Join(r.paths.ScriptsDir, "fileManager.py")
 
 	cmdArgs := []string{
@@ -272,6 +293,15 @@ func (r *Repository) ProcessFiles(ctx context.Context, req scraper.ProcessFilesR
 
 	scriptName = filepath.Join(r.paths.ScriptsDir, "train_network.py")
 	vectPath := filepath.Join(req.DownloadPath, "output", "clip_eval_vecs.npy")
+
+	if _, err := os.Stat(req.ModelPath); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			log.Warn().Msg("No model found, scoring skipped; empty scores will be stored as 0.0")
+			return nil
+		}
+
+		return fmt.Errorf("stat model %q: %w", req.ModelPath, err)
+	}
 
 	cmdArgs = []string{
 		scriptName,
@@ -517,9 +547,15 @@ func (r *Repository) CSVToRows(csvPath string) ([]scraper.CSVRow, error) {
 		dir := row["dir"]
 		path := row["path"]
 
-		modelScore, err := strconv.ParseFloat(row["model_score"], 32)
-		if err != nil {
-			return nil, fmt.Errorf("parse float model_score: %w", err)
+		rawModelScore := strings.TrimSpace(row["model_score"])
+
+		modelScore := 0.0
+		if rawModelScore != "" {
+			var err error
+			modelScore, err = strconv.ParseFloat(rawModelScore, 32)
+			if err != nil {
+				return nil, fmt.Errorf("parse float model_score %q: %w", rawModelScore, err)
+			}
 		}
 
 		var userScore *float32
@@ -552,7 +588,6 @@ func (r *Repository) ComputeHashesInDir(dir string) ([]scraper.File, error) {
 	list := make([]scraper.File, 0)
 	if err := filepath.Walk(dir, func(path string, info fs.FileInfo, walkErr error) error {
 		if walkErr != nil {
-			fmt.Printf("dir:%s\n\n", dir)
 			return fmt.Errorf("walk err: %w", walkErr)
 		}
 
@@ -632,8 +667,20 @@ func (r *Repository) DeleteImages(file string) error {
 	return nil
 }
 
+func makeVenvPath(venvDir string) (string, error) {
+	if venvDir == "" {
+		return "", fmt.Errorf("no venv")
+	}
+
+	if runtime.GOOS == "windows" {
+		return filepath.Join(venvDir, "Scripts", "python.exe"), nil
+	}
+
+	return filepath.Join(venvDir, "bin", "python"), nil
+}
+
 func handleDownloadError(URL, funcName string, err error, issue apperror.DownloadIssue, repeat bool) scraper.FailedDownload {
-	log.Error().Err(fmt.Errorf("%s: %w", funcName, err)).Msg("download")
+	log.Info().Err(fmt.Errorf("%s: %w", funcName, err)).Msg("download image")
 	fail := scraper.FailedDownload{
 		Warn:       issue,
 		URL:        URL,
@@ -677,28 +724,52 @@ func executeCommand(ctx context.Context, exePath string, args ...string) error {
 		exePath,
 		args...,
 	)
-	var stderr, stdout bytes.Buffer
-	cmd.Stderr = &stderr
-	cmd.Stdout = &stdout
 
 	cmd.Env = append(os.Environ(),
-		"HF_HUB_OFFLINE=1",
 		"HF_HUB_VERBOSITY=error",
-		"PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True",
+		"PYTORCH_ALLOC_CONF=expandable_segments:True",
+		"PYTHONUNBUFFERED=1",
 	)
-	if err := cmd.Run(); err != nil {
-		stderrStr := strings.TrimSpace(stderr.String())
-		stdoutStr := strings.TrimSpace(stdout.String())
-		if stderrStr != "" {
-			fmt.Printf("PYTHON STDERR:%s", stderrStr)
-		}
-		if stdoutStr != "" {
-			fmt.Printf("PYTHON STDOUT:%s", stdoutStr)
-		}
 
-		return fmt.Errorf("cmd: %w, stdout:%s , stderr: %s", err, stdoutStr, stderrStr)
+	stdoutPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		return fmt.Errorf("stdout pipe: %w", err)
 	}
-	fmt.Printf("PYTHON STDOUT:%s", stdout.String())
+
+	stderrPipe, err := cmd.StderrPipe()
+	if err != nil {
+		return fmt.Errorf("stderr pipe: %w", err)
+	}
+
+	var stdoutBuf bytes.Buffer
+	var stderrBuf bytes.Buffer
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("cmd start: %w", err)
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		streamPipe("PYTHON STDOUT", stdoutPipe, &stdoutBuf)
+	}()
+
+	go func() {
+		defer wg.Done()
+		streamPipe("PYTHON STDERR", stderrPipe, &stderrBuf)
+	}()
+
+	waitErr := cmd.Wait()
+	wg.Wait()
+
+	if waitErr != nil {
+		stdoutStr := strings.TrimSpace(stdoutBuf.String())
+		stderrStr := strings.TrimSpace(stderrBuf.String())
+
+		return fmt.Errorf("cmd: %w, stdout: %s, stderr: %s", waitErr, stdoutStr, stderrStr)
+	}
 	return nil
 }
 
@@ -719,14 +790,34 @@ func getFilename(fURL string) (string, error) {
 	return filename, nil
 }
 
-func sendGetRequest(picURL string, client *http.Client) (*http.Response, error) {
+func streamPipe(prefix string, r io.Reader, dst *bytes.Buffer) {
+	scanner := bufio.NewScanner(r)
+
+	// 64K
+	scanner.Buffer(make([]byte, 1024), 1024*1024*10)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		dst.WriteString(line)
+		dst.WriteByte('\n')
+
+		fmt.Printf("%s: %s\n", prefix, line)
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("%s read error: %v\n", prefix, err)
+	}
+}
+
+func (r *Repository) sendGetRequest(picURL string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", picURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("make request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:146.0) Gecko/20100101 Firefox/146.0")
-	resp, err := client.Do(req)
+	req.Header.Set("User-Agent", r.cfg.UserAgent)
+	resp, err := r.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("get request: %w", err)
 	}

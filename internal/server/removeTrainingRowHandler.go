@@ -7,7 +7,7 @@ import (
 )
 
 type RemoveRowDTO struct {
-	ID int64 `json:"id"`
+	ID []int64 `json:"ids"`
 }
 
 type RemoveRowResp struct {
@@ -38,6 +38,6 @@ func RemoveTrainingRowHandler(service *trainingsvc.Service) http.HandlerFunc {
 		resp := RemoveRowResp{
 			Accepted: true,
 		}
-		writeJSON(w, http.StatusCreated, logger, resp)
+		writeJSON(w, http.StatusOK, logger, resp)
 	}
 }

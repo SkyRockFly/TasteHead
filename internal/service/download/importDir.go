@@ -176,6 +176,7 @@ func (s *Service) parseImportDirs(ctx context.Context, req ParseImportDirs) []Fa
 			if err := os.RemoveAll(dest.Path); err != nil {
 				log.Err(fmt.Errorf("RemoveAll: %w", err)).Msg("ImportLocalDir")
 			}
+			continue
 
 		}
 
